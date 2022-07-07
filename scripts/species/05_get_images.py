@@ -79,6 +79,8 @@ class ImageDigestor():
         self.upload(tmp_path, file_path)
         shutil.rmtree(f'tmp{os.sep}{specie.gbifKey}')
         time.sleep(0.1)
+        if specie['Unnamed: 0'] % 100 == 0:
+            gc.collect()
         return True
 
     def try_run_on_specie(self, specie):
