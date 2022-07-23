@@ -1,10 +1,12 @@
 import 'package:camera/camera.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:naturinorge_guide/db/nin_db.dart';
 import 'package:naturinorge_guide/pages/home_page.dart';
 // import 'package:naturinorge_guide/pages/inference/lib/clasifier.dart';
-// import 'package:naturinorge_guide/pages/inference/lib/inference_provider.dart';
+import 'package:naturinorge_guide/pages/inference/lib/inference_provider.dart'
+    if (dart.dart.library.html) 'package:naturinorge_guide/pages/inference/lib/fake_inference_provider.dart';
 import 'package:naturinorge_guide/pages/lec/lec_provider.dart';
 import 'package:naturinorge_guide/pages/nin_structure/major_type/major_type_provider.dart';
 import 'package:naturinorge_guide/pages/nin_structure/nin_structure_provider.dart';
@@ -25,7 +27,11 @@ void main() async {
   //   PREFS_CHILD: false,
   // });
   db = NiNDatabase();
-  cameras = await availableCameras();
+  if (defaultTargetPlatform == TargetPlatform.iOS ||
+      defaultTargetPlatform == TargetPlatform.android) {
+    cameras = await availableCameras();
+  }
+
   runApp(EasyLocalization(
     child: MyApp(),
     supportedLocales: [Locale('en', 'US'), Locale('nb', 'NO')],
@@ -69,10 +75,10 @@ class MyApp extends StatelessWidget {
             create: (_) => LecProvider(context.locale),
             lazy: false,
           ),
-          // ChangeNotifierProvider(
-          //   create: (_) => InferenceProvider(),
-          //   lazy: false,
-          // ),
+          ChangeNotifierProvider(
+            create: (_) => InferenceProvider(),
+            lazy: false,
+          ),
         ],
         child: MaterialApp(
             localizationsDelegates: context.localizationDelegates,

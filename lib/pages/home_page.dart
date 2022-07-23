@@ -1,8 +1,11 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:naturinorge_guide/generated/codegen_loader.g.dart';
 import 'package:naturinorge_guide/pages/home_page_lib/home_page_button.dart';
+import 'package:naturinorge_guide/pages/inference/inference_page.dart'
+    if (dart.library.html) 'package:naturinorge_guide/pages/inference/fake_inference.dart';
 // import 'package:naturinorge_guide/pages/inference/inference_page.dart';
 import 'package:naturinorge_guide/pages/lec/lec_list_page.dart';
 import 'package:naturinorge_guide/pages/nin_structure/major_type/major_type_provider.dart';
@@ -162,14 +165,16 @@ class HomePage extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                             builder: (context) => SpeciesPage()))),
-                // HomePageButton(
-                //     key: ValueKey('inference_btn'),
-                //     image: Image.asset('assets/species_icon.png'),
-                //     text: 'Inference',
-                //     onPressed: () => Navigator.push(
-                //         context,
-                //         MaterialPageRoute(
-                //             builder: (context) => InferencePage())))
+                if (defaultTargetPlatform == TargetPlatform.iOS ||
+                    defaultTargetPlatform == TargetPlatform.android)
+                  HomePageButton(
+                      key: ValueKey('inference_btn'),
+                      image: Image.asset('assets/species_icon.png'),
+                      text: 'Inference',
+                      onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => InferencePage())))
               ],
             ),
             LoadingOverlay(),
