@@ -1,0 +1,7 @@
+pygbif
+qwikidata
+pandas
+tqdm
+jupyterlab
+openpyxl
+google-cloud-storage

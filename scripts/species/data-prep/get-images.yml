@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: get-images
+spec:
+  selector:
+    matchLabels:
+      app: get-images
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: get-images
+    spec:
+      containers:
+      - name: get-images
+        image: michaltorma/get-images:latest
+        resources:
+          limits:
+            memory: "7000Mi"
+            cpu: "3000m"
+

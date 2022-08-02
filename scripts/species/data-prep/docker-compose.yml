@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  species_service:
+    build: .
+    image: species_scrape:latest
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./:/srv/species
