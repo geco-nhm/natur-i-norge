@@ -1,0 +1,8 @@
+sklearn
+keras
+tensorflow
+jupyterlab
+pandas
+google-cloud-storage
+pillow
+tqdm

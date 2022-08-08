@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  training_service:
+    build: .
+    image: species_training:latest
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./:/srv/
+      - ~/Downloads/nin_species:/data
+    deploy:
+      resources:
+        limits:
+          cpus: '3.0'
+          memory: 5G
+        reservations:
+          cpus: '2.0'
+          memory: 2G

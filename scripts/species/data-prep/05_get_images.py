@@ -87,8 +87,8 @@ class ImageDigestor():
     def try_run_on_specie(self, specie):
         try:
             self.run_on_specie(specie)
-        except:
-            # logging.warning(f'Unable to digest : {specie}')
+        except Exception as e:
+            logging.warning(f'Unable to digest : {specie}\n{e}')
             gc.collect()
 
     def upload(self, source, destination):

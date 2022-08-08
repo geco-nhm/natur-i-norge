@@ -8,9 +8,10 @@ ENV PATH=/home/user/.local/bin/:$PATH
 COPY requirements.txt /requirements.txt
 RUN pip install --no-cache-dir -r /requirements.txt
 EXPOSE 8888
-COPY partial/04_species_urls.csv /input/species_urls.csv
-COPY 05_get_images.py srv/get_images.py
+COPY partial/species_urls.csv /input/species_urls.csv
+RUN mkdir -p /home/user/tmp
+COPY --chown=user 05_get_images.py home/user/get_images.py
 COPY secret/ /srv/secret/
-WORKDIR /srv
-CMD ["python", "/srv/get_images.py"]
+WORKDIR /home/user
+CMD ["python", "/home/user/get_images.py"]
 # CMD [ "jupyter", "lab", "--ip", "0.0.0.0", "--no-browser" ]
