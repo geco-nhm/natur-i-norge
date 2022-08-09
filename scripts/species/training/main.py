@@ -13,9 +13,7 @@ from pathlib import Path
 import tensorflow as tf
 tqdm.pandas()
 # %%
-# os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="/srv/secret/natur-i-norge-training-bfcd40f1165d.json"
-# storage_client = storage.Client()
-# bucket = storage_client.get_bucket('nin_species')
+
 # %%
 species_dirs = Path('/data').glob('[0-9]*')
 for specie_dir in species_dirs:
@@ -31,7 +29,14 @@ images = Path('/data').rglob('*.jpg')
 images = list(images)
 # %%
 images_df = pd.DataFrame({'file': images})
-images_df['class'] = images_df['file'].apply(lambda x: int(x.parent.name))
+images_df['gbif_id'] = images_df['file'].apply(lambda x: int(x.parent.name))
+# %%
+classes_mapping = pd.read_csv('classes_mapping.csv')
+images_df['class'] = None
+for idx, row in classes_mapping.iterrows():
+    class_id = row['gbif_id']
+    images_df.loc[images_df['gbif_id'] == class_id, 'class'] = idx
+# %%
 images_df = images_df.sample(frac=1, ignore_index=True)
 # %%
 num_samples = 4096
@@ -72,10 +77,14 @@ for tfrec_num in range(num_tfrecords):
 # %%
 images_df.to_csv('files.csv')
 
-# train, test = train_test_split(files_df, test_size=0.2)
 # %%
-y_train = files_df.pop('gbif_id')
-class_weights = class_weight.compute_class_weight(class_weight = 'balanced',
-                                                 classes = np.unique(y_train),
-                                                 y = y_train)
-
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="/srv/secret/natur-i-norge-training-bfcd40f1165d.json"
+storage_client = storage.Client()
+bucket = storage_client.get_bucket('nin_training_asia')
+# %%
+tf_records = Path('tf_records').glob('*.tfrec')
+for tf_record in tf_records:
+    blob = bucket.blob(tf_record.name)
+    blob.upload_from_filename(tf_record)
+    print(f'Uploaded: {tf_record}')
+# train, test = train_test_split(files_df, test_size=0.2)
