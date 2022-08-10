@@ -739,10 +739,12 @@ packages:
   tflite_flutter_helper:
     dependency: "direct main"
     description:
-      name: tflite_flutter_helper
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.3.1"
+      path: "."
+      ref: onRequestPermissionsResult-parameters
+      resolved-ref: "783f15e5a87126159147d8ea30b98eea9207ac70"
+      url: "https://github.com/filofan1/tflite_flutter_helper.git"
+    source: git
+    version: "0.3.0"
   timing:
     dependency: transitive
     description:

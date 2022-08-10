@@ -645,7 +645,7 @@
     },
     {
       "name": "tflite_flutter_helper",
-      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/tflite_flutter_helper-0.3.1",
+      "rootUri": "file:///Users/amarok/.pub-cache/git/tflite_flutter_helper-783f15e5a87126159147d8ea30b98eea9207ac70/",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -782,7 +782,7 @@
       "languageVersion": "2.12"
     }
   ],
-  "generated": "2022-08-10T17:17:20.295870Z",
+  "generated": "2022-08-10T22:09:05.918534Z",
   "generator": "pub",
   "generatorVersion": "2.19.0-79.0.dev"
 }
