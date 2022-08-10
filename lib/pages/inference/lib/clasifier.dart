@@ -7,15 +7,19 @@ import 'package:naturinorge_guide/pages/inference/lib/tools.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
 
-class Clasifier {
+class Classifier {
   final DEBUG_NAME = 'InferenceProvider';
   Interpreter? _interpreter;
   late final ImageProcessor _imageProcessor;
   final ImageUtils _imageUtils = ImageUtils();
-  late List<List<int>> _outputShapes;
+  // late List<List<int>> _outputShapes;
+  late List<Tensor> _inputTensors;
+  late List<Tensor> _outputTensors;
+  TensorBuffer probabilityBuffer =
+      TensorBuffer.createFixedSize(<int>[1, 1230], TfLiteType.float32);
 
   /// Types of output tensors
-  late List<TfLiteType> _outputTypes;
+  // late List<TfLiteType> _outputTypes;
 
   Interpreter? get interpreter => _interpreter;
 
@@ -44,34 +48,24 @@ class Clasifier {
       interpreterOptions = InterpreterOptions()..threads = 4;
       // throw Exception('Not supported platform');
     }
-    _interpreter = await Interpreter.fromAsset(
-        "lite-model_aiy_vision_classifier_plants_V1_3.tflite",
+    _interpreter = await Interpreter.fromAsset("model_1.tflite",
         options: interpreterOptions);
-    initOuputShapes(_interpreter!);
+    _inputTensors = _interpreter!.getInputTensors();
+    _outputTensors = _interpreter!.getOutputTensors();
+    print(_inputTensors);
+    print(_outputTensors);
   }
 
   initImageProcessor() {
     _imageProcessor = ImageProcessorBuilder()
-        .add(ResizeOp(224, 224, ResizeMethod.NEAREST_NEIGHBOUR))
+        .add(ResizeWithCropOrPadOp(224, 224))
+        // .add(NormalizeOp(mean, stddev))
+        // .add(ResizeOp(224, 224, ResizeMethod.NEAREST_NEIGHBOUR))
         .build();
   }
 
   loadInterpreterFromAdress(int interpreterAdress) {
     _interpreter = Interpreter.fromAddress(interpreterAdress);
-    initOuputShapes(_interpreter!);
-  }
-
-  initOuputShapes(Interpreter interpreter) {
-    var outputTensors = interpreter.getOutputTensors();
-    // interpreter.getOutputIndex(opName)
-    _outputShapes = [];
-    _outputTypes = [];
-    outputTensors.forEach((tensor) {
-      _outputShapes.add(tensor.shape);
-      _outputTypes.add(tensor.type);
-    });
-    print(_outputShapes);
-    print(_outputTypes);
   }
 
   Future interpret(CameraImage cameraImage) async {
@@ -80,14 +74,17 @@ class Clasifier {
     }
     var image = ImageUtils.convertCameraImage(cameraImage);
     TensorImage tensorImage = TensorImage.fromImage(image);
-    tensorImage = _imageProcessor.process(tensorImage);
-    var output;
-    _interpreter!.run(tensorImage, output);
-    return output;
+    var processedTensorImage = _imageProcessor.process(tensorImage);
+    try {
+      _interpreter!.run(processedTensorImage.buffer, probabilityBuffer.buffer);
+    } catch (e) {
+      print('Unable to interpret: ${e.toString()}');
+    }
+    return probabilityBuffer;
   }
 
   static void entryPoint(SendPort sendPort) {
-    Clasifier clasifier = Clasifier();
+    Classifier clasifier = Classifier();
     ReceivePort receivePort = ReceivePort();
     sendPort.send(receivePort.sendPort);
     receivePort.listen((cameraImage) {

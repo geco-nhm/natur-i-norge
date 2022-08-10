@@ -9,7 +9,7 @@ class InferenceProvider extends ChangeNotifier {
   Isolate? _isolate;
   SendPort? _isolateSendPort;
   bool inProgress = false;
-  late final Clasifier _clasifier;
+  late final Classifier _classifier;
 
   InferenceProvider() {
     startIsolate();
@@ -18,15 +18,15 @@ class InferenceProvider extends ChangeNotifier {
   Future startIsolate() async {
     inProgress = true;
     // notifyListeners();
-    _clasifier = Clasifier();
-    await _clasifier.initInterpreter();
+    _classifier = Classifier();
+    await _classifier.initInterpreter();
 
     _receivePort = ReceivePort();
     _isolate = await Isolate.spawn(entryPoint, _receivePort.sendPort,
         debugName: "inferenceIsolate");
     _receivePort.listen((msg) => _digestResults(msg));
     _receivePort.sendPort
-        .send(IsolateData(null, _clasifier.interpreter!.address));
+        .send(IsolateData(null, _classifier.interpreter!.address));
     inProgress = false;
     // notifyListeners();
     // _isolate = await Isolate
@@ -35,7 +35,7 @@ class InferenceProvider extends ChangeNotifier {
   static void entryPoint(SendPort sendPort) {
     ReceivePort _isolateReceivePort = ReceivePort();
     sendPort.send(_isolateReceivePort.sendPort);
-    Clasifier clasifier = Clasifier();
+    Classifier clasifier = Classifier();
     clasifier.initImageProcessor();
     _isolateReceivePort.listen((message) async {
       if (message is IsolateData) {
@@ -45,6 +45,7 @@ class InferenceProvider extends ChangeNotifier {
         }
         if (message.cameraImage != null && clasifier.interpreter != null) {
           var res = await clasifier.interpret(message.cameraImage!);
+          // print(res);
           sendPort.send(res);
         }
       }
@@ -52,7 +53,7 @@ class InferenceProvider extends ChangeNotifier {
   }
 
   inference(CameraImage cameraImage) {
-    print('new image');
+    // print('new image');
     // if (inProgress) {
     //   return;
     // }
@@ -63,14 +64,14 @@ class InferenceProvider extends ChangeNotifier {
     }
 
     _isolateSendPort!
-        .send(IsolateData(cameraImage, _clasifier.interpreter!.address));
+        .send(IsolateData(cameraImage, _classifier.interpreter!.address));
   }
 
   _digestResults(dynamic message) {
     if (message is SendPort) {
       _isolateSendPort = message;
     } else {
-      print(message);
+      print('digest result: $message');
     }
     inProgress = false;
     // notifyListeners();
