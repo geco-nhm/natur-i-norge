@@ -3,21 +3,21 @@
   "packages": [
     {
       "name": "_fe_analyzer_shared",
-      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/_fe_analyzer_shared-25.0.0",
+      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/_fe_analyzer_shared-46.0.0",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "2.17"
     },
     {
       "name": "analyzer",
-      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/analyzer-2.2.0",
+      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/analyzer-4.6.0",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "2.17"
     },
     {
       "name": "analyzer_plugin",
-      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/analyzer_plugin-0.7.0",
+      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/analyzer_plugin-0.11.1",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "2.17"
     },
     {
       "name": "archive",
@@ -51,39 +51,39 @@
     },
     {
       "name": "build",
-      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/build-2.1.0",
+      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/build-2.3.0",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "2.14"
     },
     {
       "name": "build_config",
-      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/build_config-1.0.0",
+      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/build_config-1.1.0",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "2.14"
     },
     {
       "name": "build_daemon",
-      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/build_daemon-3.0.0",
+      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/build_daemon-3.1.0",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "2.14"
     },
     {
       "name": "build_resolvers",
-      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/build_resolvers-2.0.4",
+      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/build_resolvers-2.0.9",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "2.14"
     },
     {
       "name": "build_runner",
-      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/build_runner-2.1.2",
+      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/build_runner-2.2.0",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "2.14"
     },
     {
       "name": "build_runner_core",
-      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/build_runner_core-7.1.0",
+      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/build_runner_core-7.2.3",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "2.14"
     },
     {
       "name": "built_collection",
@@ -195,9 +195,21 @@
     },
     {
       "name": "dart_style",
-      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/dart_style-2.0.3",
+      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/dart_style-2.2.3",
       "packageUri": "lib/",
       "languageVersion": "2.12"
+    },
+    {
+      "name": "drift",
+      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/drift-1.7.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.15"
+    },
+    {
+      "name": "drift_dev",
+      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/drift_dev-1.7.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.14"
     },
     {
       "name": "easy_localization",
@@ -219,7 +231,7 @@
     },
     {
       "name": "ffi",
-      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/ffi-1.1.2",
+      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/ffi-1.2.1",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -351,9 +363,9 @@
     },
     {
       "name": "json_annotation",
-      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/json_annotation-4.1.0",
+      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/json_annotation-4.6.0",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "2.14"
     },
     {
       "name": "logging",
@@ -387,15 +399,9 @@
     },
     {
       "name": "moor",
-      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/moor-4.5.0",
+      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/moor-4.6.1+1",
       "packageUri": "lib/",
       "languageVersion": "2.13"
-    },
-    {
-      "name": "moor_generator",
-      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/moor_generator-4.5.1",
-      "packageUri": "lib/",
-      "languageVersion": "2.12"
     },
     {
       "name": "nested",
@@ -567,7 +573,7 @@
     },
     {
       "name": "source_gen",
-      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/source_gen-1.1.0",
+      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/source_gen-1.2.2",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -579,9 +585,9 @@
     },
     {
       "name": "sqlite3",
-      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/sqlite3-1.1.2",
+      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/sqlite3-1.7.2",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "2.17"
     },
     {
       "name": "sqlite3_flutter_libs",
@@ -591,9 +597,9 @@
     },
     {
       "name": "sqlparser",
-      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/sqlparser-0.17.2",
+      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/sqlparser-0.22.0",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "2.17"
     },
     {
       "name": "stack_trace",
@@ -782,7 +788,7 @@
       "languageVersion": "2.12"
     }
   ],
-  "generated": "2022-08-12T18:42:23.266804Z",
+  "generated": "2022-08-13T22:26:23.724265Z",
   "generator": "pub",
   "generatorVersion": "2.19.0-79.0.dev"
 }

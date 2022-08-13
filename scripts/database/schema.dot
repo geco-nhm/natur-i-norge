@@ -338,6 +338,50 @@
     >]
     
 
+        InferenceSpecies [label=<
+        <TABLE BGCOLOR="lightyellow" BORDER="0"
+            CELLBORDER="0" CELLSPACING="0">
+                <TR><TD COLSPAN="2" CELLPADDING="4"
+                        ALIGN="CENTER" BGCOLOR="palegoldenrod"
+                ><FONT FACE="Helvetica Bold" COLOR="black"
+                >InferenceSpecies</FONT></TD></TR><TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Bitstream Vera Sans">★ pid</FONT
+        ></TD><TD ALIGN="LEFT"
+        ><FONT FACE="Bitstream Vera Sans">INTEGER</FONT
+        ></TD></TR> <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Bitstream Vera Sans">☆ minorType_id</FONT
+        ></TD><TD ALIGN="LEFT"
+        ><FONT FACE="Bitstream Vera Sans">TEXT</FONT
+        ></TD></TR> <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Bitstream Vera Sans">⚪ code</FONT
+        ></TD><TD ALIGN="LEFT"
+        ><FONT FACE="Bitstream Vera Sans">TEXT</FONT
+        ></TD></TR> <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Bitstream Vera Sans">⚪ full_code</FONT
+        ></TD><TD ALIGN="LEFT"
+        ><FONT FACE="Bitstream Vera Sans">TEXT</FONT
+        ></TD></TR> <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Bitstream Vera Sans">⚪ gbif_id</FONT
+        ></TD><TD ALIGN="LEFT"
+        ><FONT FACE="Bitstream Vera Sans">INTEGER</FONT
+        ></TD></TR> <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Bitstream Vera Sans">⚪ name_latin</FONT
+        ></TD><TD ALIGN="LEFT"
+        ><FONT FACE="Bitstream Vera Sans">TEXT</FONT
+        ></TD></TR> <TR><TD ALIGN="LEFT" BORDER="0"
+        ><FONT FACE="Bitstream Vera Sans">⚪ name_nb</FONT
+        ></TD><TD ALIGN="LEFT"
+        ><FONT FACE="Bitstream Vera Sans">TEXT</FONT
+        ></TD></TR><TR><TD ALIGN="LEFT" BORDER="0"
+        BGCOLOR="palegoldenrod"
+        ><FONT FACE="Bitstream Vera Sans">» ix_nin_InferenceSpecies_minorType_id</FONT></TD
+        ><TD BGCOLOR="palegoldenrod" ALIGN="LEFT"
+        ><FONT FACE="Bitstream Vera Sans">INDEX(minorType_id)</FONT
+        ></TD></TR>
+        </TABLE>
+    >]
+    
+
         LEC [label=<
         <TABLE BGCOLOR="lightyellow" BORDER="0"
             CELLBORDER="0" CELLSPACING="0">
@@ -982,6 +1026,7 @@
 	"GadValue" -> "MajorType" [label = "majorType_id"]
 	"GadValue" -> "GadScale" [label = "valueM7Scale_id"]
 	"GadValue" -> "GadScale" [label = "valueM3Scale_id"]
+	"InferenceSpecies" -> "MinorType" [label = "minorType_id"]
 	"LEC" -> "LEC" [label = "parentLec_id"]
 	"LEC" -> "StructuringProcess" [label = "structuringProcess_id"]
 	"LEC" -> "PatternOfVariation" [label = "patternOfVariation_id"]

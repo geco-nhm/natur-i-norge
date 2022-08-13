@@ -258,3 +258,15 @@ CREATE TABLE "nin_GadValue" (
 	FOREIGN KEY("valueM3Scale_id") REFERENCES "nin_GadScale" ("m3Scale")
 );
 CREATE INDEX "ix_nin_GadValue_species_id" ON "nin_GadValue" (species_id);
+CREATE TABLE "nin_InferenceSpecies" (
+	pid INTEGER NOT NULL, 
+	"minorType_id" TEXT, 
+	name_latin TEXT, 
+	name_nb TEXT, 
+	full_code TEXT, 
+	gbif_id INTEGER, 
+	code TEXT, 
+	PRIMARY KEY (pid), 
+	FOREIGN KEY("minorType_id") REFERENCES "nin_MinorType" (_id)
+);
+CREATE INDEX "ix_nin_InferenceSpecies_minorType_id" ON "nin_InferenceSpecies" ("minorType_id");

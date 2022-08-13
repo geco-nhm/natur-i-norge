@@ -339,3 +339,14 @@ class Species(Base):
     scientificName = Column(Text, index=True)
     author = Column(Text)
     vernacularName = Column(Text, index=True)
+
+class InferenceSpecies(Base):
+    __tablename__ = f'{prefix}InferenceSpecies'
+    pid = Column(Integer, autoincrement=True, primary_key=True)
+    minorType_id = Column(Text, ForeignKey(
+        f'{prefix}MinorType._id'), index=True)
+    name_latin = Column(Text)
+    name_nb = Column(Text)
+    full_code = Column(Text)
+    gbif_id = Column(Integer)
+    code = Column(Text)

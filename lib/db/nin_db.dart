@@ -1,17 +1,16 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:moor/moor.dart';
+import 'package:drift/drift.dart';
+import 'package:drift/native.dart';
+
 import 'package:naturinorge_guide/db/lazy_db_web.dart'
     if (dart.library.io) 'package:naturinorge_guide/db/lazy_db_flutter.dart';
 import 'package:naturinorge_guide/details/detailed_adapter.dart';
 
 part 'nin_db.g.dart';
 
-@UseMoor(
-  // relative import for the moor file. Moor also supports `package:`
-  // imports
-  daos: [],
+@DriftDatabase(
   include: {'schema.moor'},
 )
 class NiNDatabase extends _$NiNDatabase {
