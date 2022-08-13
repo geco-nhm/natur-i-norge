@@ -10,7 +10,11 @@ class MajorTypeGroupDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (Provider.of<NinStructureProvider>(context).selectedMajorTypeGroup ==
-        null) {
+            null ||
+        Provider.of<NinStructureProvider>(context)
+                .selectedMajorTypeGroup
+                ?.description ==
+            null) {
       return Container();
     }
     return Material(

@@ -30,14 +30,15 @@ class MajorTypePagePortrait extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
       ),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4.0),
-        child: AutoSizeText(
-          majorType!.description!,
-          wrapWords: true,
-          softWrap: true,
+      if (majorType!.description != null)
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+          child: AutoSizeText(
+            majorType!.description!,
+            wrapWords: true,
+            softWrap: true,
+          ),
         ),
-      ),
     ];
     if (Provider.of<MajorTypeProvider>(context).xAxis != null) {
       body.addAll([

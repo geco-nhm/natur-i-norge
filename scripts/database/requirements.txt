@@ -1,4 +1,5 @@
 pandas
 requests
 jupyterlab
+sqlalchemy
 # swagger-to

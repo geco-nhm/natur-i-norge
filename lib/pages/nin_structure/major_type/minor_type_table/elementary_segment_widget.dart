@@ -16,7 +16,7 @@ class ElementarySegmentLabelWidget extends StatelessWidget {
           elevation: MATERIAL_ELEVATION,
           // padding: EdgeInsets.all(2),
           child: Center(
-            child: AutoSizeText(elementarySegmentGroupId!.split('.')[1]),
+            child: AutoSizeText(elementarySegmentGroupId!.split('-')[1]),
           ),
         ),
       ),
