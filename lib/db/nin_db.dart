@@ -307,6 +307,20 @@ class NiNDatabase extends _$NiNDatabase {
     return res;
   }
 
+  Future<List<NinInferenceSpecie>> getInferenceSpecieByGbifId(
+      int gbifId) async {
+    return await (select(ninInferenceSpecies)
+          ..where((tbl) => tbl.gbifId.equals(gbifId)))
+        .get();
+  }
+
+  Future<NinInferenceSpecie> getOneInferenceSpecieByGbifId(int gbifId) async {
+    return await (select(ninInferenceSpecies)
+          ..where((tbl) => tbl.gbifId.equals(gbifId))
+          ..limit(1))
+        .getSingle();
+  }
+
   @override
   int get schemaVersion => 86;
 

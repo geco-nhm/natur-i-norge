@@ -8,6 +8,7 @@ import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
 
 class Classifier {
+  bool isProcessing = false;
   final DEBUG_NAME = 'InferenceProvider';
   Interpreter? _interpreter;
   late final ImageProcessor _imageProcessor;
@@ -58,9 +59,9 @@ class Classifier {
 
   initImageProcessor() {
     _imageProcessor = ImageProcessorBuilder()
-        .add(ResizeWithCropOrPadOp(224, 224))
+        .add(ResizeWithCropOrPadOp(720, 720))
         // .add(NormalizeOp(mean, stddev))
-        // .add(ResizeOp(224, 224, ResizeMethod.NEAREST_NEIGHBOUR))
+        .add(ResizeOp(224, 224, ResizeMethod.NEAREST_NEIGHBOUR))
         .build();
   }
 
@@ -72,6 +73,7 @@ class Classifier {
     if (cameraImage.planes.isEmpty) {
       return;
     }
+    isProcessing = true;
     var image = ImageUtils.convertCameraImage(cameraImage);
     TensorImage tensorImage = TensorImage.fromImage(image);
     var processedTensorImage = _imageProcessor.process(tensorImage);
@@ -80,16 +82,21 @@ class Classifier {
     } catch (e) {
       print('Unable to interpret: ${e.toString()}');
     }
+    isProcessing = false;
     return probabilityBuffer;
   }
 
   static void entryPoint(SendPort sendPort) {
-    Classifier clasifier = Classifier();
+    Classifier classifier = Classifier();
     ReceivePort receivePort = ReceivePort();
     sendPort.send(receivePort.sendPort);
     receivePort.listen((cameraImage) {
-      clasifier.interpret(cameraImage);
+      classifier.interpret(cameraImage);
     });
+  }
+
+  stop() {
+    // _interpreter!.close();
   }
 }
 
