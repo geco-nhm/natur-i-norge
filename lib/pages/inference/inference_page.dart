@@ -37,15 +37,11 @@ class _InferencePageState extends State<InferencePage> {
       enableAudio: false,
     );
     controller.initialize().then((_) {
-      if (!mounted) {
-        return;
-      } else {
-        controller.startImageStream(imageStream);
-        setState(() {
-          isInitialized = true;
-        });
-        // inferenceProvider.resetInference();
-      }
+      controller.startImageStream(imageStream);
+      setState(() {
+        isInitialized = true;
+      });
+      // inferenceProvider.resetInference();
     });
   }
 
@@ -64,8 +60,8 @@ class _InferencePageState extends State<InferencePage> {
   @override
   void dispose() {
     inferenceProvider.timer?.cancel();
-
-    controller.stopImageStream();
+    inferenceProvider.clearResults();
+    // controller.stopImageStream();
     controller.dispose();
     super.dispose();
   }
@@ -78,6 +74,13 @@ class _InferencePageState extends State<InferencePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Inference'),
+        actions: [
+          IconButton(
+              onPressed: () =>
+                  Provider.of<InferenceProvider>(context, listen: false)
+                      .resetInference(),
+              icon: Icon(Icons.refresh))
+        ],
       ),
       body: Column(mainAxisSize: MainAxisSize.max, children: [
         Expanded(child: CameraPreview(controller)),

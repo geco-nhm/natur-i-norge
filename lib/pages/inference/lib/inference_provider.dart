@@ -51,11 +51,15 @@ class InferenceProvider extends ChangeNotifier {
     // _isolate = await Isolate
   }
 
-  resetInference() {
+  clearResults() {
     history.clear();
     _allFoundSpeciesIds.clear();
     _recentSpecies.clear();
     _predictedNinTypes.clear();
+  }
+
+  resetInference() {
+    clearResults();
     notifyListeners();
   }
 
