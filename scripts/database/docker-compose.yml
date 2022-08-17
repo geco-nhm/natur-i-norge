@@ -10,3 +10,4 @@ services:
       - ./src:/src
       - /Users/amarok/src/UIO/NIN/natur-i-norge/assets:/data/assets
       - /Users/amarok/src/UIO/NIN/natur-i-norge/scripts/species/data-prep:/data/data-prep
+      - /Users/amarok/src/UIO/NIN/natur-i-norge/lib/db:/data/db

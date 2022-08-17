@@ -1,9 +1,12 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:naturinorge_guide/db/nin_db.dart';
 import 'package:naturinorge_guide/main.dart';
 import 'package:naturinorge_guide/pages/inference/lib/clasifier.dart';
 import 'package:naturinorge_guide/pages/inference/lib/inference_provider.dart';
 import 'package:naturinorge_guide/pages/inference/lib/predicted_widget.dart';
+import 'package:naturinorge_guide/pages/inference/lib/tools.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/provider.dart';
 
@@ -18,8 +21,9 @@ class _InferencePageState extends State<InferencePage> {
   late CameraController controller;
   bool predicting = false;
   late InferenceProvider inferenceProvider;
-  bool isRecording = false;
+  bool isRecording = true;
   bool isInitialized = false;
+  ValueNotifier<bool> isDialOpen = ValueNotifier(false);
 
   @override
   void didChangeDependencies() {
@@ -59,7 +63,6 @@ class _InferencePageState extends State<InferencePage> {
 
   @override
   void dispose() {
-    inferenceProvider.timer?.cancel();
     inferenceProvider.clearResults();
     // controller.stopImageStream();
     controller.dispose();
@@ -72,47 +75,101 @@ class _InferencePageState extends State<InferencePage> {
       return Container();
     }
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Inference'),
-        actions: [
-          IconButton(
-              onPressed: () =>
+      body: Column(mainAxisSize: MainAxisSize.max, children: [
+        Expanded(
+          child: Row(
+            children: [
+              Expanded(
+                flex: 1,
+                child: AspectRatio(
+                    aspectRatio: 720 / 1280, child: CameraPreview(controller)),
+              ),
+              Expanded(flex: 1, child: PredictedTypesWidget()),
+            ],
+          ),
+        ),
+        LinearProgressIndicator(
+          value: Provider.of<InferenceProvider>(context).predictionProgress,
+        ),
+        // Autocomplete(
+        //   optionsBuilder: (val) => db!.getInferenceSpeciesByFilter(val.text),
+        //   displayStringForOption: (SearchResult option) =>
+        //       '${option.nameNb} (${option.nameLatin})',
+        // onSelected: (List<TypedResult> option) =>
+        //     Provider.of<InferenceProvider>(context, listen: false)
+        //         .approveSpecie(PredictedSpecie(option, 1.0)),
+        // fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) => ,
+        // ),
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              PredictedSpeciesWidget(),
+              ApprovedSpeciesWidget(),
+            ],
+          ),
+        ),
+        Row(
+          children: [
+            Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                      '${Provider.of<InferenceProvider>(context).getBufferSize.toStringAsFixed(0)} frames'),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                      '${(Provider.of<InferenceProvider>(context).getThreshold * 100).toStringAsFixed(0)} %'),
+                ),
+              ],
+            ),
+            Expanded(
+              child: Column(
+                children: [
+                  Slider(
+                      min: 1.0,
+                      max: 100.0,
+                      value: Provider.of<InferenceProvider>(context)
+                          .getBufferSize
+                          .toDouble(),
+                      onChanged: (val) =>
+                          Provider.of<InferenceProvider>(context, listen: false)
+                              .setBufferSize = val.toInt()),
+                  Slider(
+                      value:
+                          Provider.of<InferenceProvider>(context).getThreshold,
+                      onChanged: (val) =>
+                          Provider.of<InferenceProvider>(context, listen: false)
+                              .setThreshold = val),
+                ],
+              ),
+            ),
+            Container(
+              width: 70,
+            )
+          ],
+        )
+      ]),
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
+      floatingActionButton: SpeedDial(
+        openCloseDial: isDialOpen,
+        icon: Icons.menu,
+        children: [
+          SpeedDialChild(
+              label: 'Reset',
+              onTap: () =>
                   Provider.of<InferenceProvider>(context, listen: false)
                       .resetInference(),
-              icon: Icon(Icons.refresh))
+              child: Icon(Icons.refresh)),
+          SpeedDialChild(
+            label: 'Probability threshold',
+            child: Icon(Icons.settings),
+          )
         ],
       ),
-      body: Column(mainAxisSize: MainAxisSize.max, children: [
-        Expanded(child: CameraPreview(controller)),
-        Center(
-            child: Text(Provider.of<InferenceProvider>(context)
-                .getThreshold
-                .toString())),
-        Slider(
-            label: Provider.of<InferenceProvider>(context)
-                .getThreshold
-                .toStringAsPrecision(2),
-            value: Provider.of<InferenceProvider>(context).getThreshold,
-            onChanged: (val) =>
-                Provider.of<InferenceProvider>(context, listen: false)
-                    .setThreshold = val),
-        SizedBox(
-            height: 300,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                PredictedSpeciesWidget(),
-                PredictedTypesWidget(),
-              ],
-            )),
-      ]),
-      floatingActionButton: isInitialized
-          ? FloatingActionButton.large(
-              onPressed: () => toggleRecording(),
-              backgroundColor: isRecording ? Colors.red : Colors.green,
-              child: isRecording ? Icon(Icons.stop) : Icon(Icons.play_arrow),
-            )
-          : null,
     );
   }
 }

@@ -259,14 +259,20 @@ CREATE TABLE "nin_GadValue" (
 );
 CREATE INDEX "ix_nin_GadValue_species_id" ON "nin_GadValue" (species_id);
 CREATE TABLE "nin_InferenceSpecies" (
-	pid INTEGER NOT NULL, 
-	"minorType_id" TEXT, 
+	gbif_id INTEGER NOT NULL, 
 	name_latin TEXT, 
 	name_nb TEXT, 
+	PRIMARY KEY (gbif_id)
+);
+CREATE TABLE "nin_InferenceTypes" (
+	pid INTEGER NOT NULL, 
+	"minorTypeScaled_id" TEXT, 
 	full_code TEXT, 
 	gbif_id INTEGER, 
 	code TEXT, 
 	PRIMARY KEY (pid), 
-	FOREIGN KEY("minorType_id") REFERENCES "nin_MinorType" (_id)
+	FOREIGN KEY("minorTypeScaled_id") REFERENCES "nin_MinorTypeScaled" (_id), 
+	FOREIGN KEY(gbif_id) REFERENCES "nin_InferenceSpecies" (gbif_id)
 );
-CREATE INDEX "ix_nin_InferenceSpecies_minorType_id" ON "nin_InferenceSpecies" ("minorType_id");
+CREATE INDEX "ix_nin_InferenceTypes_minorTypeScaled_id" ON "nin_InferenceTypes" ("minorTypeScaled_id");
+CREATE INDEX "ix_nin_InferenceTypes_gbif_id" ON "nin_InferenceTypes" (gbif_id);

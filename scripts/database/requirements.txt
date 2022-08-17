@@ -3,3 +3,4 @@ requests
 jupyterlab
 sqlalchemy
 # swagger-to
+sadisplay

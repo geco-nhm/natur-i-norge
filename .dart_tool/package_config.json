@@ -284,6 +284,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "flutter_speed_dial",
+      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/flutter_speed_dial-6.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "flutter_staggered_grid_view",
       "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/flutter_staggered_grid_view-0.4.0",
       "packageUri": "lib/",
@@ -788,7 +794,7 @@
       "languageVersion": "2.12"
     }
   ],
-  "generated": "2022-08-13T23:06:13.261246Z",
+  "generated": "2022-08-16T07:57:49.820335Z",
   "generator": "pub",
   "generatorVersion": "2.19.0-79.0.dev"
 }

@@ -78,3 +78,11 @@ class ImageUtils {
     print('Saved $appPath/out$i.jpg');
   }
 }
+
+class SearchResult {
+  final String nameNb;
+  final String nameLatin;
+  final int gbifId;
+
+  SearchResult(this.nameNb, this.nameLatin, this.gbifId);
+}

@@ -342,11 +342,18 @@ class Species(Base):
 
 class InferenceSpecies(Base):
     __tablename__ = f'{prefix}InferenceSpecies'
-    pid = Column(Integer, autoincrement=True, primary_key=True)
-    minorType_id = Column(Text, ForeignKey(
-        f'{prefix}MinorType._id'), index=True)
+    gbif_id = Column(Integer, primary_key=True)
     name_latin = Column(Text)
     name_nb = Column(Text)
+    
+    
+
+class InferenceTypes(Base):
+    __tablename__ = f'{prefix}InferenceTypes'
+    pid = Column(Integer, autoincrement=True, primary_key=True)
+    minorTypeScaled_id = Column(Text, ForeignKey(
+        f'{prefix}MinorTypeScaled._id'), index=True)
     full_code = Column(Text)
-    gbif_id = Column(Integer)
+    gbif_id = Column(Integer, ForeignKey(
+        f'{prefix}InferenceSpecies.gbif_id'), index=True)
     code = Column(Text)

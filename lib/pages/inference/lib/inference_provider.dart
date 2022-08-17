@@ -1,10 +1,7 @@
 import 'dart:async';
-import 'dart:collection';
 import 'dart:isolate';
-import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:naturinorge_guide/db/nin_db.dart';
 import 'package:naturinorge_guide/details/detailed_adapter.dart';
@@ -13,24 +10,30 @@ import 'package:naturinorge_guide/pages/inference/lib/clasifier.dart';
 import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
 
 class InferenceProvider extends ChangeNotifier {
-  bool isInitialised = false;
   late ReceivePort _receivePort;
   Isolate? _isolate;
   SendPort? _isolateSendPort;
   bool _inProgress = false;
-  late final Classifier _classifier;
+  late Classifier _classifier;
   late List<String> labels;
-  var history = List<Map<String, double>>.empty(growable: true);
-  bool wasHistoryEmpty = true;
-  Timer? timer;
+  var _history = List<Map<String, double>>.empty(growable: true);
+  bool _wasHistoryEmpty = true;
   double _threshold = 0.90;
-  var _allFoundSpeciesIds = Set<FoundSpecie>();
+  int _bufferSize = 50;
+  var _approvedSpecies = List<ApprovedSpecie>.empty(growable: true);
   var _predictedNinTypes = List<PredictedType>.empty(growable: true);
   // var _predictedTypes = List<List<>>.empty();
-  var _recentSpecies = List<PredictedSpecie>.empty(growable: true);
-  InferenceProvider() {
+  var _predictedSpecies = List<PredictedSpecie>.empty(growable: true);
+  final Locale _locale;
+
+  InferenceProvider(this._locale) {
     startIsolate();
-    startTimer();
+  }
+
+  @override
+  void dispose() {
+    _isolate?.kill();
+    super.dispose();
   }
 
   Future startIsolate() async {
@@ -52,9 +55,9 @@ class InferenceProvider extends ChangeNotifier {
   }
 
   clearResults() {
-    history.clear();
-    _allFoundSpeciesIds.clear();
-    _recentSpecies.clear();
+    _history.clear();
+    _approvedSpecies.clear();
+    _predictedSpecies.clear();
     _predictedNinTypes.clear();
   }
 
@@ -63,74 +66,68 @@ class InferenceProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  _calculateResults() async {
-    if (history.isEmpty) {
-      if (wasHistoryEmpty) {
+  _calculatePredictions() async {
+    if (_history.isEmpty) {
+      if (_wasHistoryEmpty) {
         return;
       }
-      wasHistoryEmpty = true;
+      _wasHistoryEmpty = true;
       notifyListeners();
       return;
     }
-    wasHistoryEmpty = false;
+    _wasHistoryEmpty = false;
     // get most common species with from history
-    final tmp_species = List<PredictedSpecie>.empty(growable: true);
-    _recentSpecies.clear();
+    final tmpSpecies = List<PredictedSpecie>.empty(growable: true);
+    _predictedSpecies.clear();
 
-    for (var key in history[0].keys) {
-      var prob_sum = history
+    for (var key in _history[0].keys) {
+      var probSum = _history
           .map((e) => e[key])
           .reduce((value, element) => value! + element!);
-      var prob_mean = prob_sum! / history.length;
-      if (prob_mean > _threshold) {
+      var probMean = probSum! / _history.length;
+      if (probMean > _threshold) {
         var specie;
         try {
-          specie = await db!.getOneInferenceSpecieByGbifId(int.parse(key));
+          specie = await db!.getInferenceSpecieByGbifId(int.parse(key));
         } catch (e) {
           print('Unable to find $key in InferenceSpecies DB');
           continue;
         }
 
-        var res = PredictedSpecie(specie, prob_mean);
+        var res = PredictedSpecie(specie, probMean);
 
-        tmp_species.add(res);
+        tmpSpecies.add(res);
       }
     }
-    tmp_species.sort(((a, b) => b.probability.compareTo(a.probability)));
-    _recentSpecies = tmp_species;
 
-    if (tmp_species.isNotEmpty) {
-      if (_allFoundSpeciesIds
-          .map<int>((e) => e.minorTypeId)
-          .toList()
-          .contains(tmp_species[0].specie.minorTypeId)) {
-        history.clear();
-        notifyListeners();
-        return;
-      }
-      var best_sp = tmp_species[0].specie;
-      var best_sp_inf = await db!.getInferenceSpecieByGbifId(best_sp.gbifId!);
-      _allFoundSpeciesIds.add(FoundSpecie(best_sp.gbifId!, best_sp_inf));
+    tmpSpecies.sort(((a, b) => b.probability.compareTo(a.probability)));
+    _predictedSpecies = tmpSpecies;
 
-      var mints = List<String>.empty(growable: true);
-      for (var element in _allFoundSpeciesIds) {
-        var mints_tmp =
-            element.inferenceSpecies.map<String>((e) => e.minorTypeId!);
-        mints.addAll(mints_tmp);
-      }
-      final tmp_results = List<PredictedType>.empty(growable: true);
-      var unique_mints = Set.from(mints);
-      unique_mints.forEach((uMint) {
-        var count = mints.where((e) => e == uMint).length;
-        tmp_results.add(PredictedType(uMint, count));
-      });
-      tmp_results.sort(((a, b) => b.count.compareTo(a.count)));
-      _predictedNinTypes = tmp_results;
-    }
-
-    history.clear();
+    _history.clear();
     // print(found_species);
 
+    notifyListeners();
+  }
+
+  calculateNinTypes() async {
+    var mints = List<String>.empty(growable: true);
+    for (var element in _approvedSpecies) {
+      var tmpMints =
+          element.inferenceTypes.map<String>((e) => e.minorTypeScaledId!);
+      mints.addAll(tmpMints);
+    }
+    final tmpPredictedNinTypes = List<PredictedType>.empty(growable: true);
+    var uniqueMints = Set.from(mints);
+    for (var uMint in uniqueMints) {
+      var count = mints.where((e) => e == uMint).length;
+      var minorTypeScaled = await db!.getMinorTypeScaledById(uMint);
+      Detailed<NinMinorTypeScaledData> detailedMinorTypeScaled =
+          await Detailed<NinMinorTypeScaledData>()
+              .initialize(minorTypeScaled[0], _locale);
+      tmpPredictedNinTypes.add(PredictedType(detailedMinorTypeScaled, count));
+    }
+    tmpPredictedNinTypes.sort(((a, b) => b.count.compareTo(a.count)));
+    _predictedNinTypes = tmpPredictedNinTypes;
     notifyListeners();
   }
 
@@ -142,8 +139,8 @@ class InferenceProvider extends ChangeNotifier {
     _isolateReceivePort.listen((message) async {
       if (message is IsolateData) {
         if (classifier.interpreter == null ||
-            classifier.interpreter!.address != message.interpreterAdress) {
-          classifier.loadInterpreterFromAdress(message.interpreterAdress);
+            classifier.interpreter!.address != message.interpreterAddress) {
+          classifier.loadInterpreterFromAddress(message.interpreterAddress);
         }
         if (message.cameraImage != null &&
             classifier.interpreter != null &&
@@ -154,11 +151,6 @@ class InferenceProvider extends ChangeNotifier {
         }
       }
     });
-  }
-
-  startTimer() {
-    timer =
-        Timer.periodic(Duration(seconds: 2), (Timer t) => _calculateResults());
   }
 
   inference(CameraImage cameraImage) {
@@ -179,8 +171,11 @@ class InferenceProvider extends ChangeNotifier {
     } else if (message is TensorBufferFloat) {
       var prediction = message;
       TensorLabel tensorLabel = TensorLabel.fromList(labels, prediction);
-      history.add(tensorLabel.getMapWithFloatValue());
+      _history.add(tensorLabel.getMapWithFloatValue());
       print('prediction added to history');
+      if (_history.length >= _bufferSize) {
+        _calculatePredictions();
+      }
 
       // print('digest result: ${tensorLabel.getMapWithFloatValue()}');
     }
@@ -190,34 +185,52 @@ class InferenceProvider extends ChangeNotifier {
   }
 
   pause() {
-    if (timer != 0) {
-      timer!.cancel();
-    }
+    _history.clear();
   }
 
-  stop() {
-    if (_isolate != null) {
-      _isolate!.kill();
-    }
-
-    _classifier.stop();
+  bool isSpecieApproved(PredictedSpecie predictedSpecie) {
+    return _approvedSpecies
+        .map((e) => e.inferenceSpecie.gbifId)
+        .contains(predictedSpecie.specie.gbifId);
   }
+
+  approveSpecie(PredictedSpecie predictedSpecie) async {
+    var inferenceSpecies =
+        await db!.getInferenceTypeByGbifId(predictedSpecie.specie.gbifId);
+    _approvedSpecies
+        .add(ApprovedSpecie(predictedSpecie.specie, inferenceSpecies));
+    calculateNinTypes();
+  }
+
+  removeApprovedSpecie(int gbifId) {
+    _approvedSpecies.removeWhere((e) => e.inferenceSpecie.gbifId == gbifId);
+    calculateNinTypes();
+  }
+
+  double get predictionProgress => _history.length / _bufferSize;
 
   List<PredictedType> get predictedTypes => _predictedNinTypes;
-  List<PredictedSpecie> get predictedSpecies => _recentSpecies;
+  List<PredictedSpecie> get predictedSpecies => _predictedSpecies;
+  List<ApprovedSpecie> get approvedSpecies => _approvedSpecies;
   bool get inProgress => _inProgress;
   double get getThreshold => _threshold;
   set setThreshold(double val) {
     _threshold = val;
     notifyListeners();
   }
+
+  int get getBufferSize => _bufferSize;
+  set setBufferSize(int val) {
+    _bufferSize = val;
+    notifyListeners();
+  }
 }
 
 class IsolateData {
   final CameraImage? cameraImage;
-  final int interpreterAdress;
+  final int interpreterAddress;
 
-  IsolateData(this.cameraImage, this.interpreterAdress);
+  IsolateData(this.cameraImage, this.interpreterAddress);
 }
 
 class PredictedSpecie {
@@ -228,15 +241,15 @@ class PredictedSpecie {
 }
 
 class PredictedType {
-  final String minorTypeId;
+  final Detailed<NinMinorTypeScaledData> minorTypeScaled;
   final int count;
 
-  PredictedType(this.minorTypeId, this.count);
+  PredictedType(this.minorTypeScaled, this.count);
 }
 
-class FoundSpecie {
-  final int minorTypeId;
-  final List<NinInferenceSpecie> inferenceSpecies;
+class ApprovedSpecie {
+  final NinInferenceSpecie inferenceSpecie;
+  final List<NinInferenceType> inferenceTypes;
 
-  FoundSpecie(this.minorTypeId, this.inferenceSpecies);
+  ApprovedSpecie(this.inferenceSpecie, this.inferenceTypes);
 }

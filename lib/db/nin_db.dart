@@ -7,6 +7,7 @@ import 'package:drift/native.dart';
 import 'package:naturinorge_guide/db/lazy_db_web.dart'
     if (dart.library.io) 'package:naturinorge_guide/db/lazy_db_flutter.dart';
 import 'package:naturinorge_guide/details/detailed_adapter.dart';
+import 'package:naturinorge_guide/pages/inference/lib/tools.dart';
 
 part 'nin_db.g.dart';
 
@@ -307,22 +308,26 @@ class NiNDatabase extends _$NiNDatabase {
     return res;
   }
 
-  Future<List<NinInferenceSpecie>> getInferenceSpecieByGbifId(
-      int gbifId) async {
-    return await (select(ninInferenceSpecies)
+  Future<List<NinInferenceType>> getInferenceTypeByGbifId(int gbifId) async {
+    return await (select(ninInferenceTypes)
           ..where((tbl) => tbl.gbifId.equals(gbifId)))
         .get();
   }
 
-  Future<NinInferenceSpecie> getOneInferenceSpecieByGbifId(int gbifId) async {
+  Future<NinInferenceSpecie> getInferenceSpecieByGbifId(int gbifId) async {
     return await (select(ninInferenceSpecies)
-          ..where((tbl) => tbl.gbifId.equals(gbifId))
-          ..limit(1))
+          ..where((tbl) => tbl.gbifId.equals(gbifId)))
         .getSingle();
   }
 
+  Future<List<NinInferenceSpecie>> getInferenceSpeciesByFilter(String filter) =>
+      (select(ninInferenceSpecies)
+            ..where((tbl) =>
+                tbl.nameLatin.like('%$filter%') | tbl.nameNb.like('%$filter%')))
+          .get();
+
   @override
-  int get schemaVersion => 86;
+  int get schemaVersion => 87;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(onCreate: (Migrator m) {

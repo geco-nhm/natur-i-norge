@@ -6839,33 +6839,244 @@ class NinGadValue extends Table with TableInfo<NinGadValue, NinGadValueData> {
 
 class NinInferenceSpecie extends DataClass
     implements Insertable<NinInferenceSpecie> {
-  final int pid;
-  final String? minorTypeId;
+  final int gbifId;
   final String? nameLatin;
   final String? nameNb;
-  final String? fullCode;
-  final int? gbifId;
-  final String? code;
-  NinInferenceSpecie(
-      {required this.pid,
-      this.minorTypeId,
-      this.nameLatin,
-      this.nameNb,
-      this.fullCode,
-      this.gbifId,
-      this.code});
+  NinInferenceSpecie({required this.gbifId, this.nameLatin, this.nameNb});
   factory NinInferenceSpecie.fromData(Map<String, dynamic> data,
       {String? prefix}) {
     final effectivePrefix = prefix ?? '';
     return NinInferenceSpecie(
-      pid: const IntType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}pid'])!,
-      minorTypeId: const StringType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}minorType_id']),
+      gbifId: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}gbif_id'])!,
       nameLatin: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}name_latin']),
       nameNb: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}name_nb']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['gbif_id'] = Variable<int>(gbifId);
+    if (!nullToAbsent || nameLatin != null) {
+      map['name_latin'] = Variable<String?>(nameLatin);
+    }
+    if (!nullToAbsent || nameNb != null) {
+      map['name_nb'] = Variable<String?>(nameNb);
+    }
+    return map;
+  }
+
+  NinInferenceSpeciesCompanion toCompanion(bool nullToAbsent) {
+    return NinInferenceSpeciesCompanion(
+      gbifId: Value(gbifId),
+      nameLatin: nameLatin == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nameLatin),
+      nameNb:
+          nameNb == null && nullToAbsent ? const Value.absent() : Value(nameNb),
+    );
+  }
+
+  factory NinInferenceSpecie.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return NinInferenceSpecie(
+      gbifId: serializer.fromJson<int>(json['gbif_id']),
+      nameLatin: serializer.fromJson<String?>(json['name_latin']),
+      nameNb: serializer.fromJson<String?>(json['name_nb']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'gbif_id': serializer.toJson<int>(gbifId),
+      'name_latin': serializer.toJson<String?>(nameLatin),
+      'name_nb': serializer.toJson<String?>(nameNb),
+    };
+  }
+
+  NinInferenceSpecie copyWith(
+          {int? gbifId, String? nameLatin, String? nameNb}) =>
+      NinInferenceSpecie(
+        gbifId: gbifId ?? this.gbifId,
+        nameLatin: nameLatin ?? this.nameLatin,
+        nameNb: nameNb ?? this.nameNb,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('NinInferenceSpecie(')
+          ..write('gbifId: $gbifId, ')
+          ..write('nameLatin: $nameLatin, ')
+          ..write('nameNb: $nameNb')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(gbifId, nameLatin, nameNb);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is NinInferenceSpecie &&
+          other.gbifId == this.gbifId &&
+          other.nameLatin == this.nameLatin &&
+          other.nameNb == this.nameNb);
+}
+
+class NinInferenceSpeciesCompanion extends UpdateCompanion<NinInferenceSpecie> {
+  final Value<int> gbifId;
+  final Value<String?> nameLatin;
+  final Value<String?> nameNb;
+  const NinInferenceSpeciesCompanion({
+    this.gbifId = const Value.absent(),
+    this.nameLatin = const Value.absent(),
+    this.nameNb = const Value.absent(),
+  });
+  NinInferenceSpeciesCompanion.insert({
+    this.gbifId = const Value.absent(),
+    this.nameLatin = const Value.absent(),
+    this.nameNb = const Value.absent(),
+  });
+  static Insertable<NinInferenceSpecie> custom({
+    Expression<int>? gbifId,
+    Expression<String?>? nameLatin,
+    Expression<String?>? nameNb,
+  }) {
+    return RawValuesInsertable({
+      if (gbifId != null) 'gbif_id': gbifId,
+      if (nameLatin != null) 'name_latin': nameLatin,
+      if (nameNb != null) 'name_nb': nameNb,
+    });
+  }
+
+  NinInferenceSpeciesCompanion copyWith(
+      {Value<int>? gbifId, Value<String?>? nameLatin, Value<String?>? nameNb}) {
+    return NinInferenceSpeciesCompanion(
+      gbifId: gbifId ?? this.gbifId,
+      nameLatin: nameLatin ?? this.nameLatin,
+      nameNb: nameNb ?? this.nameNb,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (gbifId.present) {
+      map['gbif_id'] = Variable<int>(gbifId.value);
+    }
+    if (nameLatin.present) {
+      map['name_latin'] = Variable<String?>(nameLatin.value);
+    }
+    if (nameNb.present) {
+      map['name_nb'] = Variable<String?>(nameNb.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NinInferenceSpeciesCompanion(')
+          ..write('gbifId: $gbifId, ')
+          ..write('nameLatin: $nameLatin, ')
+          ..write('nameNb: $nameNb')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class NinInferenceSpecies extends Table
+    with TableInfo<NinInferenceSpecies, NinInferenceSpecie> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  NinInferenceSpecies(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _gbifIdMeta = const VerificationMeta('gbifId');
+  late final GeneratedColumn<int?> gbifId = GeneratedColumn<int?>(
+      'gbif_id', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: false,
+      $customConstraints: 'NOT NULL');
+  final VerificationMeta _nameLatinMeta = const VerificationMeta('nameLatin');
+  late final GeneratedColumn<String?> nameLatin = GeneratedColumn<String?>(
+      'name_latin', aliasedName, true,
+      type: const StringType(),
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  final VerificationMeta _nameNbMeta = const VerificationMeta('nameNb');
+  late final GeneratedColumn<String?> nameNb = GeneratedColumn<String?>(
+      'name_nb', aliasedName, true,
+      type: const StringType(),
+      requiredDuringInsert: false,
+      $customConstraints: '');
+  @override
+  List<GeneratedColumn> get $columns => [gbifId, nameLatin, nameNb];
+  @override
+  String get aliasedName => _alias ?? 'nin_InferenceSpecies';
+  @override
+  String get actualTableName => 'nin_InferenceSpecies';
+  @override
+  VerificationContext validateIntegrity(Insertable<NinInferenceSpecie> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('gbif_id')) {
+      context.handle(_gbifIdMeta,
+          gbifId.isAcceptableOrUnknown(data['gbif_id']!, _gbifIdMeta));
+    }
+    if (data.containsKey('name_latin')) {
+      context.handle(_nameLatinMeta,
+          nameLatin.isAcceptableOrUnknown(data['name_latin']!, _nameLatinMeta));
+    }
+    if (data.containsKey('name_nb')) {
+      context.handle(_nameNbMeta,
+          nameNb.isAcceptableOrUnknown(data['name_nb']!, _nameNbMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {gbifId};
+  @override
+  NinInferenceSpecie map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return NinInferenceSpecie.fromData(data,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  NinInferenceSpecies createAlias(String alias) {
+    return NinInferenceSpecies(attachedDatabase, alias);
+  }
+
+  @override
+  List<String> get customConstraints => const ['PRIMARY KEY (gbif_id)'];
+  @override
+  bool get dontWriteConstraints => true;
+}
+
+class NinInferenceType extends DataClass
+    implements Insertable<NinInferenceType> {
+  final int pid;
+  final String? minorTypeScaledId;
+  final String? fullCode;
+  final int? gbifId;
+  final String? code;
+  NinInferenceType(
+      {required this.pid,
+      this.minorTypeScaledId,
+      this.fullCode,
+      this.gbifId,
+      this.code});
+  factory NinInferenceType.fromData(Map<String, dynamic> data,
+      {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return NinInferenceType(
+      pid: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}pid'])!,
+      minorTypeScaledId: const StringType().mapFromDatabaseResponse(
+          data['${effectivePrefix}minorTypeScaled_id']),
       fullCode: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}full_code']),
       gbifId: const IntType()
@@ -6878,14 +7089,8 @@ class NinInferenceSpecie extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['pid'] = Variable<int>(pid);
-    if (!nullToAbsent || minorTypeId != null) {
-      map['minorType_id'] = Variable<String?>(minorTypeId);
-    }
-    if (!nullToAbsent || nameLatin != null) {
-      map['name_latin'] = Variable<String?>(nameLatin);
-    }
-    if (!nullToAbsent || nameNb != null) {
-      map['name_nb'] = Variable<String?>(nameNb);
+    if (!nullToAbsent || minorTypeScaledId != null) {
+      map['minorTypeScaled_id'] = Variable<String?>(minorTypeScaledId);
     }
     if (!nullToAbsent || fullCode != null) {
       map['full_code'] = Variable<String?>(fullCode);
@@ -6899,17 +7104,12 @@ class NinInferenceSpecie extends DataClass
     return map;
   }
 
-  NinInferenceSpeciesCompanion toCompanion(bool nullToAbsent) {
-    return NinInferenceSpeciesCompanion(
+  NinInferenceTypesCompanion toCompanion(bool nullToAbsent) {
+    return NinInferenceTypesCompanion(
       pid: Value(pid),
-      minorTypeId: minorTypeId == null && nullToAbsent
+      minorTypeScaledId: minorTypeScaledId == null && nullToAbsent
           ? const Value.absent()
-          : Value(minorTypeId),
-      nameLatin: nameLatin == null && nullToAbsent
-          ? const Value.absent()
-          : Value(nameLatin),
-      nameNb:
-          nameNb == null && nullToAbsent ? const Value.absent() : Value(nameNb),
+          : Value(minorTypeScaledId),
       fullCode: fullCode == null && nullToAbsent
           ? const Value.absent()
           : Value(fullCode),
@@ -6919,14 +7119,13 @@ class NinInferenceSpecie extends DataClass
     );
   }
 
-  factory NinInferenceSpecie.fromJson(Map<String, dynamic> json,
+  factory NinInferenceType.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return NinInferenceSpecie(
+    return NinInferenceType(
       pid: serializer.fromJson<int>(json['pid']),
-      minorTypeId: serializer.fromJson<String?>(json['minorType_id']),
-      nameLatin: serializer.fromJson<String?>(json['name_latin']),
-      nameNb: serializer.fromJson<String?>(json['name_nb']),
+      minorTypeScaledId:
+          serializer.fromJson<String?>(json['minorTypeScaled_id']),
       fullCode: serializer.fromJson<String?>(json['full_code']),
       gbifId: serializer.fromJson<int?>(json['gbif_id']),
       code: serializer.fromJson<String?>(json['code']),
@@ -6937,39 +7136,31 @@ class NinInferenceSpecie extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'pid': serializer.toJson<int>(pid),
-      'minorType_id': serializer.toJson<String?>(minorTypeId),
-      'name_latin': serializer.toJson<String?>(nameLatin),
-      'name_nb': serializer.toJson<String?>(nameNb),
+      'minorTypeScaled_id': serializer.toJson<String?>(minorTypeScaledId),
       'full_code': serializer.toJson<String?>(fullCode),
       'gbif_id': serializer.toJson<int?>(gbifId),
       'code': serializer.toJson<String?>(code),
     };
   }
 
-  NinInferenceSpecie copyWith(
+  NinInferenceType copyWith(
           {int? pid,
-          String? minorTypeId,
-          String? nameLatin,
-          String? nameNb,
+          String? minorTypeScaledId,
           String? fullCode,
           int? gbifId,
           String? code}) =>
-      NinInferenceSpecie(
+      NinInferenceType(
         pid: pid ?? this.pid,
-        minorTypeId: minorTypeId ?? this.minorTypeId,
-        nameLatin: nameLatin ?? this.nameLatin,
-        nameNb: nameNb ?? this.nameNb,
+        minorTypeScaledId: minorTypeScaledId ?? this.minorTypeScaledId,
         fullCode: fullCode ?? this.fullCode,
         gbifId: gbifId ?? this.gbifId,
         code: code ?? this.code,
       );
   @override
   String toString() {
-    return (StringBuffer('NinInferenceSpecie(')
+    return (StringBuffer('NinInferenceType(')
           ..write('pid: $pid, ')
-          ..write('minorTypeId: $minorTypeId, ')
-          ..write('nameLatin: $nameLatin, ')
-          ..write('nameNb: $nameNb, ')
+          ..write('minorTypeScaledId: $minorTypeScaledId, ')
           ..write('fullCode: $fullCode, ')
           ..write('gbifId: $gbifId, ')
           ..write('code: $code')
@@ -6979,79 +7170,63 @@ class NinInferenceSpecie extends DataClass
 
   @override
   int get hashCode =>
-      Object.hash(pid, minorTypeId, nameLatin, nameNb, fullCode, gbifId, code);
+      Object.hash(pid, minorTypeScaledId, fullCode, gbifId, code);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is NinInferenceSpecie &&
+      (other is NinInferenceType &&
           other.pid == this.pid &&
-          other.minorTypeId == this.minorTypeId &&
-          other.nameLatin == this.nameLatin &&
-          other.nameNb == this.nameNb &&
+          other.minorTypeScaledId == this.minorTypeScaledId &&
           other.fullCode == this.fullCode &&
           other.gbifId == this.gbifId &&
           other.code == this.code);
 }
 
-class NinInferenceSpeciesCompanion extends UpdateCompanion<NinInferenceSpecie> {
+class NinInferenceTypesCompanion extends UpdateCompanion<NinInferenceType> {
   final Value<int> pid;
-  final Value<String?> minorTypeId;
-  final Value<String?> nameLatin;
-  final Value<String?> nameNb;
+  final Value<String?> minorTypeScaledId;
   final Value<String?> fullCode;
   final Value<int?> gbifId;
   final Value<String?> code;
-  const NinInferenceSpeciesCompanion({
+  const NinInferenceTypesCompanion({
     this.pid = const Value.absent(),
-    this.minorTypeId = const Value.absent(),
-    this.nameLatin = const Value.absent(),
-    this.nameNb = const Value.absent(),
+    this.minorTypeScaledId = const Value.absent(),
     this.fullCode = const Value.absent(),
     this.gbifId = const Value.absent(),
     this.code = const Value.absent(),
   });
-  NinInferenceSpeciesCompanion.insert({
+  NinInferenceTypesCompanion.insert({
     this.pid = const Value.absent(),
-    this.minorTypeId = const Value.absent(),
-    this.nameLatin = const Value.absent(),
-    this.nameNb = const Value.absent(),
+    this.minorTypeScaledId = const Value.absent(),
     this.fullCode = const Value.absent(),
     this.gbifId = const Value.absent(),
     this.code = const Value.absent(),
   });
-  static Insertable<NinInferenceSpecie> custom({
+  static Insertable<NinInferenceType> custom({
     Expression<int>? pid,
-    Expression<String?>? minorTypeId,
-    Expression<String?>? nameLatin,
-    Expression<String?>? nameNb,
+    Expression<String?>? minorTypeScaledId,
     Expression<String?>? fullCode,
     Expression<int?>? gbifId,
     Expression<String?>? code,
   }) {
     return RawValuesInsertable({
       if (pid != null) 'pid': pid,
-      if (minorTypeId != null) 'minorType_id': minorTypeId,
-      if (nameLatin != null) 'name_latin': nameLatin,
-      if (nameNb != null) 'name_nb': nameNb,
+      if (minorTypeScaledId != null) 'minorTypeScaled_id': minorTypeScaledId,
       if (fullCode != null) 'full_code': fullCode,
       if (gbifId != null) 'gbif_id': gbifId,
       if (code != null) 'code': code,
     });
   }
 
-  NinInferenceSpeciesCompanion copyWith(
+  NinInferenceTypesCompanion copyWith(
       {Value<int>? pid,
-      Value<String?>? minorTypeId,
-      Value<String?>? nameLatin,
-      Value<String?>? nameNb,
+      Value<String?>? minorTypeScaledId,
       Value<String?>? fullCode,
       Value<int?>? gbifId,
       Value<String?>? code}) {
-    return NinInferenceSpeciesCompanion(
+    return NinInferenceTypesCompanion(
       pid: pid ?? this.pid,
-      minorTypeId: minorTypeId ?? this.minorTypeId,
-      nameLatin: nameLatin ?? this.nameLatin,
-      nameNb: nameNb ?? this.nameNb,
+      minorTypeScaledId: minorTypeScaledId ?? this.minorTypeScaledId,
       fullCode: fullCode ?? this.fullCode,
       gbifId: gbifId ?? this.gbifId,
       code: code ?? this.code,
@@ -7064,14 +7239,8 @@ class NinInferenceSpeciesCompanion extends UpdateCompanion<NinInferenceSpecie> {
     if (pid.present) {
       map['pid'] = Variable<int>(pid.value);
     }
-    if (minorTypeId.present) {
-      map['minorType_id'] = Variable<String?>(minorTypeId.value);
-    }
-    if (nameLatin.present) {
-      map['name_latin'] = Variable<String?>(nameLatin.value);
-    }
-    if (nameNb.present) {
-      map['name_nb'] = Variable<String?>(nameNb.value);
+    if (minorTypeScaledId.present) {
+      map['minorTypeScaled_id'] = Variable<String?>(minorTypeScaledId.value);
     }
     if (fullCode.present) {
       map['full_code'] = Variable<String?>(fullCode.value);
@@ -7087,11 +7256,9 @@ class NinInferenceSpeciesCompanion extends UpdateCompanion<NinInferenceSpecie> {
 
   @override
   String toString() {
-    return (StringBuffer('NinInferenceSpeciesCompanion(')
+    return (StringBuffer('NinInferenceTypesCompanion(')
           ..write('pid: $pid, ')
-          ..write('minorTypeId: $minorTypeId, ')
-          ..write('nameLatin: $nameLatin, ')
-          ..write('nameNb: $nameNb, ')
+          ..write('minorTypeScaledId: $minorTypeScaledId, ')
           ..write('fullCode: $fullCode, ')
           ..write('gbifId: $gbifId, ')
           ..write('code: $code')
@@ -7100,37 +7267,25 @@ class NinInferenceSpeciesCompanion extends UpdateCompanion<NinInferenceSpecie> {
   }
 }
 
-class NinInferenceSpecies extends Table
-    with TableInfo<NinInferenceSpecies, NinInferenceSpecie> {
+class NinInferenceTypes extends Table
+    with TableInfo<NinInferenceTypes, NinInferenceType> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  NinInferenceSpecies(this.attachedDatabase, [this._alias]);
+  NinInferenceTypes(this.attachedDatabase, [this._alias]);
   final VerificationMeta _pidMeta = const VerificationMeta('pid');
   late final GeneratedColumn<int?> pid = GeneratedColumn<int?>(
       'pid', aliasedName, false,
       type: const IntType(),
       requiredDuringInsert: false,
       $customConstraints: 'NOT NULL');
-  final VerificationMeta _minorTypeIdMeta =
-      const VerificationMeta('minorTypeId');
-  late final GeneratedColumn<String?> minorTypeId = GeneratedColumn<String?>(
-      'minorType_id', aliasedName, true,
-      type: const StringType(),
-      requiredDuringInsert: false,
-      $customConstraints: '');
-  final VerificationMeta _nameLatinMeta = const VerificationMeta('nameLatin');
-  late final GeneratedColumn<String?> nameLatin = GeneratedColumn<String?>(
-      'name_latin', aliasedName, true,
-      type: const StringType(),
-      requiredDuringInsert: false,
-      $customConstraints: '');
-  final VerificationMeta _nameNbMeta = const VerificationMeta('nameNb');
-  late final GeneratedColumn<String?> nameNb = GeneratedColumn<String?>(
-      'name_nb', aliasedName, true,
-      type: const StringType(),
-      requiredDuringInsert: false,
-      $customConstraints: '');
+  final VerificationMeta _minorTypeScaledIdMeta =
+      const VerificationMeta('minorTypeScaledId');
+  late final GeneratedColumn<String?> minorTypeScaledId =
+      GeneratedColumn<String?>('minorTypeScaled_id', aliasedName, true,
+          type: const StringType(),
+          requiredDuringInsert: false,
+          $customConstraints: '');
   final VerificationMeta _fullCodeMeta = const VerificationMeta('fullCode');
   late final GeneratedColumn<String?> fullCode = GeneratedColumn<String?>(
       'full_code', aliasedName, true,
@@ -7151,13 +7306,13 @@ class NinInferenceSpecies extends Table
       $customConstraints: '');
   @override
   List<GeneratedColumn> get $columns =>
-      [pid, minorTypeId, nameLatin, nameNb, fullCode, gbifId, code];
+      [pid, minorTypeScaledId, fullCode, gbifId, code];
   @override
-  String get aliasedName => _alias ?? 'nin_InferenceSpecies';
+  String get aliasedName => _alias ?? 'nin_InferenceTypes';
   @override
-  String get actualTableName => 'nin_InferenceSpecies';
+  String get actualTableName => 'nin_InferenceTypes';
   @override
-  VerificationContext validateIntegrity(Insertable<NinInferenceSpecie> instance,
+  VerificationContext validateIntegrity(Insertable<NinInferenceType> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -7165,19 +7320,11 @@ class NinInferenceSpecies extends Table
       context.handle(
           _pidMeta, pid.isAcceptableOrUnknown(data['pid']!, _pidMeta));
     }
-    if (data.containsKey('minorType_id')) {
+    if (data.containsKey('minorTypeScaled_id')) {
       context.handle(
-          _minorTypeIdMeta,
-          minorTypeId.isAcceptableOrUnknown(
-              data['minorType_id']!, _minorTypeIdMeta));
-    }
-    if (data.containsKey('name_latin')) {
-      context.handle(_nameLatinMeta,
-          nameLatin.isAcceptableOrUnknown(data['name_latin']!, _nameLatinMeta));
-    }
-    if (data.containsKey('name_nb')) {
-      context.handle(_nameNbMeta,
-          nameNb.isAcceptableOrUnknown(data['name_nb']!, _nameNbMeta));
+          _minorTypeScaledIdMeta,
+          minorTypeScaledId.isAcceptableOrUnknown(
+              data['minorTypeScaled_id']!, _minorTypeScaledIdMeta));
     }
     if (data.containsKey('full_code')) {
       context.handle(_fullCodeMeta,
@@ -7197,20 +7344,21 @@ class NinInferenceSpecies extends Table
   @override
   Set<GeneratedColumn> get $primaryKey => {pid};
   @override
-  NinInferenceSpecie map(Map<String, dynamic> data, {String? tablePrefix}) {
-    return NinInferenceSpecie.fromData(data,
+  NinInferenceType map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return NinInferenceType.fromData(data,
         prefix: tablePrefix != null ? '$tablePrefix.' : null);
   }
 
   @override
-  NinInferenceSpecies createAlias(String alias) {
-    return NinInferenceSpecies(attachedDatabase, alias);
+  NinInferenceTypes createAlias(String alias) {
+    return NinInferenceTypes(attachedDatabase, alias);
   }
 
   @override
   List<String> get customConstraints => const [
         'PRIMARY KEY (pid)',
-        'FOREIGN KEY("minorType_id") REFERENCES "nin_MinorType" (_id)'
+        'FOREIGN KEY("minorTypeScaled_id") REFERENCES "nin_MinorTypeScaled" (_id)',
+        'FOREIGN KEY(gbif_id) REFERENCES "nin_InferenceSpecies" (gbif_id)'
       ];
   @override
   bool get dontWriteConstraints => true;
@@ -7329,9 +7477,13 @@ abstract class _$NiNDatabase extends GeneratedDatabase {
       'CREATE INDEX "ix_nin_GadValue_species_id" ON "nin_GadValue" (species_id);');
   late final NinInferenceSpecies ninInferenceSpecies =
       NinInferenceSpecies(this);
-  late final Index ixNinInferenceSpeciesMinorTypeId = Index(
-      'ix_nin_InferenceSpecies_minorType_id',
-      'CREATE INDEX "ix_nin_InferenceSpecies_minorType_id" ON "nin_InferenceSpecies" ("minorType_id");');
+  late final NinInferenceTypes ninInferenceTypes = NinInferenceTypes(this);
+  late final Index ixNinInferenceTypesMinorTypeScaledId = Index(
+      'ix_nin_InferenceTypes_minorTypeScaled_id',
+      'CREATE INDEX "ix_nin_InferenceTypes_minorTypeScaled_id" ON "nin_InferenceTypes" ("minorTypeScaled_id");');
+  late final Index ixNinInferenceTypesGbifId = Index(
+      'ix_nin_InferenceTypes_gbif_id',
+      'CREATE INDEX "ix_nin_InferenceTypes_gbif_id" ON "nin_InferenceTypes" (gbif_id);');
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
@@ -7389,6 +7541,8 @@ abstract class _$NiNDatabase extends GeneratedDatabase {
         ninGadValue,
         ixNinGadValueSpeciesId,
         ninInferenceSpecies,
-        ixNinInferenceSpeciesMinorTypeId
+        ninInferenceTypes,
+        ixNinInferenceTypesMinorTypeScaledId,
+        ixNinInferenceTypesGbifId
       ];
 }

@@ -76,7 +76,7 @@ class MyApp extends StatelessWidget {
             lazy: false,
           ),
           ChangeNotifierProvider(
-            create: (_) => InferenceProvider(),
+            create: (_) => InferenceProvider(context.locale),
             lazy: false,
           ),
         ],

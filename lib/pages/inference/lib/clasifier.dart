@@ -65,7 +65,7 @@ class Classifier {
         .build();
   }
 
-  loadInterpreterFromAdress(int interpreterAdress) {
+  loadInterpreterFromAddress(int interpreterAdress) {
     _interpreter = Interpreter.fromAddress(interpreterAdress);
   }
 
