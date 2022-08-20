@@ -19,12 +19,14 @@ class InferenceProvider extends ChangeNotifier {
   var _history = List<Map<String, double>>.empty(growable: true);
   bool _wasHistoryEmpty = true;
   double _threshold = 0.90;
-  int _bufferSize = 50;
+  int _bufferSize = 3;
   var _approvedSpecies = List<ApprovedSpecie>.empty(growable: true);
   var _predictedNinTypes = List<PredictedType>.empty(growable: true);
   // var _predictedTypes = List<List<>>.empty();
-  var _predictedSpecies = List<PredictedSpecie>.empty(growable: true);
+  var _suggestedSpecies = List<SuggestedSpecie>.empty(growable: true);
   final Locale _locale;
+  List<NinInferenceSpecie> _speciesListFiltered =
+      List<NinInferenceSpecie>.empty(growable: true);
 
   InferenceProvider(this._locale) {
     startIsolate();
@@ -57,7 +59,7 @@ class InferenceProvider extends ChangeNotifier {
   clearResults() {
     _history.clear();
     _approvedSpecies.clear();
-    _predictedSpecies.clear();
+    _suggestedSpecies.clear();
     _predictedNinTypes.clear();
   }
 
@@ -78,7 +80,7 @@ class InferenceProvider extends ChangeNotifier {
     _wasHistoryEmpty = false;
     // get most common species with from history
     final tmpSpecies = List<PredictedSpecie>.empty(growable: true);
-    _predictedSpecies.clear();
+    // _suggestedSpecies.clear();
 
     for (var key in _history[0].keys) {
       var probSum = _history
@@ -99,12 +101,38 @@ class InferenceProvider extends ChangeNotifier {
         tmpSpecies.add(res);
       }
     }
-
-    tmpSpecies.sort(((a, b) => b.probability.compareTo(a.probability)));
-    _predictedSpecies = tmpSpecies;
-
     _history.clear();
-    // print(found_species);
+
+    // tmpSpecies.sort(((a, b) => b.probability.compareTo(a.probability)));
+
+    var predictedSpeciesIds =
+        Set<int>.from(tmpSpecies.map((e) => e.specie.gbifId));
+    var suggestedSpeciesIds =
+        Set<int>.from(_suggestedSpecies.map((e) => e.specie.gbifId));
+    var alreadySeenIds = predictedSpeciesIds.intersection(suggestedSpeciesIds);
+    // renew already seen
+    _suggestedSpecies
+        .where((e) => alreadySeenIds.contains(e.specie.gbifId))
+        .forEach((sugSp) => sugSp.wasSeen());
+    // add unseen
+    var unseenIds = predictedSpeciesIds.difference(suggestedSpeciesIds);
+    print('Unseen species: $unseenIds');
+    tmpSpecies
+        .where((predSp) => unseenIds.contains(predSp.specie.gbifId))
+        .forEach((ps) {
+      _suggestedSpecies.add(SuggestedSpecie(ps.specie));
+    });
+    // order suggested
+    _suggestedSpecies.sort(
+      (a, b) => b.numberOfSightings.compareTo(a.numberOfSightings),
+    );
+
+    // remove stale
+    _suggestedSpecies.removeWhere(
+      (element) {
+        return element.isStale();
+      },
+    );
 
     notifyListeners();
   }
@@ -188,17 +216,20 @@ class InferenceProvider extends ChangeNotifier {
     _history.clear();
   }
 
-  bool isSpecieApproved(PredictedSpecie predictedSpecie) {
+  bool isSpecieApproved(NinInferenceSpecie predictedSpecie) {
     return _approvedSpecies
         .map((e) => e.inferenceSpecie.gbifId)
-        .contains(predictedSpecie.specie.gbifId);
+        .contains(predictedSpecie.gbifId);
   }
 
-  approveSpecie(PredictedSpecie predictedSpecie) async {
-    var inferenceSpecies =
-        await db!.getInferenceTypeByGbifId(predictedSpecie.specie.gbifId);
-    _approvedSpecies
-        .add(ApprovedSpecie(predictedSpecie.specie, inferenceSpecies));
+  void approveSpecie(NinInferenceSpecie specie) async {
+    if (_approvedSpecies
+        .map((e) => e.inferenceSpecie.gbifId)
+        .contains(specie.gbifId)) {
+      return;
+    }
+    var inferenceSpecies = await db!.getInferenceTypeByGbifId(specie.gbifId);
+    _approvedSpecies.add(ApprovedSpecie(specie, inferenceSpecies));
     calculateNinTypes();
   }
 
@@ -207,13 +238,23 @@ class InferenceProvider extends ChangeNotifier {
     calculateNinTypes();
   }
 
+  filterSpecies(String filter) async {
+    if (filter.isEmpty) {
+      _speciesListFiltered = [];
+    } else {
+      _speciesListFiltered = await db!.getInferenceSpeciesByFilter(filter);
+    }
+    notifyListeners();
+  }
+
   double get predictionProgress => _history.length / _bufferSize;
 
   List<PredictedType> get predictedTypes => _predictedNinTypes;
-  List<PredictedSpecie> get predictedSpecies => _predictedSpecies;
+  List<SuggestedSpecie> get suggestedSpecies => _suggestedSpecies;
   List<ApprovedSpecie> get approvedSpecies => _approvedSpecies;
   bool get inProgress => _inProgress;
   double get getThreshold => _threshold;
+  List<NinInferenceSpecie> get speciesListFiltered => _speciesListFiltered;
   set setThreshold(double val) {
     _threshold = val;
     notifyListeners();
@@ -238,6 +279,23 @@ class PredictedSpecie {
   final double probability;
 
   PredictedSpecie(this.specie, this.probability);
+}
+
+class SuggestedSpecie {
+  final NinInferenceSpecie specie;
+  int numberOfSightings = 0;
+  late DateTime lastSeen;
+
+  wasSeen() {
+    numberOfSightings++;
+    lastSeen = DateTime.now();
+  }
+
+  SuggestedSpecie(this.specie) {
+    lastSeen = DateTime.now();
+  }
+
+  bool isStale() => DateTime.now().difference(lastSeen) > Duration(seconds: 5);
 }
 
 class PredictedType {

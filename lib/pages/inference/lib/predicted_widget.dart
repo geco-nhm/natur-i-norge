@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:naturinorge_guide/pages/inference/lib/inference_provider.dart';
 import 'package:provider/provider.dart';
 
-class PredictedSpeciesWidget extends StatelessWidget {
-  const PredictedSpeciesWidget({Key? key}) : super(key: key);
+class SuggestedSpeciesWidget extends StatelessWidget {
+  const SuggestedSpeciesWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     var predictedSpecies =
-        Provider.of<InferenceProvider>(context).predictedSpecies;
+        Provider.of<InferenceProvider>(context).suggestedSpecies;
 
     if (predictedSpecies.isEmpty) {
       return Container(
@@ -34,24 +34,22 @@ class PredictedSpeciesWidget extends StatelessWidget {
               elevation: 3,
               child: Column(
                 children: [
-                  LinearProgressIndicator(
-                    value: predictedSpecies[idx].probability,
-                  ),
+                  // LinearProgressIndicator(
+                  //   value: predictedSpecies[idx].probability,
+                  // ),
                   ListTile(
+                    onTap: () =>
+                        Provider.of<InferenceProvider>(context, listen: false)
+                            .approveSpecie(predictedSpecies[idx].specie),
                     title: Text(predictedSpecies[idx].specie.nameNb ?? ''),
                     subtitle: Text(predictedSpecies[idx].specie.nameLatin!),
                     // leading:
                     //     Text(predictedSpecies[idx].probability.toStringAsFixed(2)),
                     trailing:
                         Provider.of<InferenceProvider>(context, listen: false)
-                                .isSpecieApproved(predictedSpecies[idx])
-                            ? null
-                            : IconButton(
-                                onPressed: () => Provider.of<InferenceProvider>(
-                                        context,
-                                        listen: false)
-                                    .approveSpecie(predictedSpecies[idx]),
-                                icon: Icon(Icons.check)),
+                                .isSpecieApproved(predictedSpecies[idx].specie)
+                            ? Icon(Icons.check)
+                            : null,
                   ),
                 ],
               ),

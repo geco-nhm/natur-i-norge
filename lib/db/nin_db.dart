@@ -323,7 +323,8 @@ class NiNDatabase extends _$NiNDatabase {
   Future<List<NinInferenceSpecie>> getInferenceSpeciesByFilter(String filter) =>
       (select(ninInferenceSpecies)
             ..where((tbl) =>
-                tbl.nameLatin.like('%$filter%') | tbl.nameNb.like('%$filter%')))
+                tbl.nameLatin.like('%$filter%') | tbl.nameNb.like('%$filter%'))
+            ..limit(10))
           .get();
 
   @override

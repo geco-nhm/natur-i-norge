@@ -1,5 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:naturinorge_guide/db/nin_db.dart';
 import 'package:naturinorge_guide/main.dart';
@@ -24,6 +25,7 @@ class _InferencePageState extends State<InferencePage> {
   bool isRecording = true;
   bool isInitialized = false;
   ValueNotifier<bool> isDialOpen = ValueNotifier(false);
+  var textEditingController = TextEditingController();
 
   @override
   void didChangeDependencies() {
@@ -74,102 +76,173 @@ class _InferencePageState extends State<InferencePage> {
     if (!controller.value.isInitialized) {
       return Container();
     }
-    return Scaffold(
-      body: Column(mainAxisSize: MainAxisSize.max, children: [
-        Expanded(
-          child: Row(
-            children: [
-              Expanded(
-                flex: 1,
-                child: AspectRatio(
-                    aspectRatio: 720 / 1280, child: CameraPreview(controller)),
-              ),
-              Expanded(flex: 1, child: PredictedTypesWidget()),
-            ],
-          ),
-        ),
-        LinearProgressIndicator(
-          value: Provider.of<InferenceProvider>(context).predictionProgress,
-        ),
-        // Autocomplete(
-        //   optionsBuilder: (val) => db!.getInferenceSpeciesByFilter(val.text),
-        //   displayStringForOption: (SearchResult option) =>
-        //       '${option.nameNb} (${option.nameLatin})',
-        // onSelected: (List<TypedResult> option) =>
-        //     Provider.of<InferenceProvider>(context, listen: false)
-        //         .approveSpecie(PredictedSpecie(option, 1.0)),
-        // fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) => ,
-        // ),
-        Expanded(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              PredictedSpeciesWidget(),
-              ApprovedSpeciesWidget(),
-            ],
-          ),
-        ),
-        Row(
-          children: [
-            Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                      '${Provider.of<InferenceProvider>(context).getBufferSize.toStringAsFixed(0)} frames'),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                      '${(Provider.of<InferenceProvider>(context).getThreshold * 100).toStringAsFixed(0)} %'),
-                ),
-              ],
-            ),
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+          body: Column(mainAxisSize: MainAxisSize.max, children: [
             Expanded(
-              child: Column(
+              child: Row(
                 children: [
-                  Slider(
-                      min: 1.0,
-                      max: 100.0,
-                      value: Provider.of<InferenceProvider>(context)
-                          .getBufferSize
-                          .toDouble(),
-                      onChanged: (val) =>
-                          Provider.of<InferenceProvider>(context, listen: false)
-                              .setBufferSize = val.toInt()),
-                  Slider(
-                      value:
-                          Provider.of<InferenceProvider>(context).getThreshold,
-                      onChanged: (val) =>
-                          Provider.of<InferenceProvider>(context, listen: false)
-                              .setThreshold = val),
+                  Expanded(
+                    flex: 1,
+                    child: AspectRatio(
+                        aspectRatio: 720 / 1280,
+                        child: CameraPreview(controller)),
+                  ),
+                  Expanded(flex: 1, child: PredictedTypesWidget()),
                 ],
               ),
             ),
-            Container(
-              width: 70,
+            Divider(),
+            // LinearProgressIndicator(
+            //   value: Provider.of<InferenceProvider>(context).predictionProgress,
+            // ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                  onPressed: () => showModalBottomSheet(
+                      enableDrag: true,
+                      context: context,
+                      builder: ((context) {
+                        var speciesListFiltered =
+                            Provider.of<InferenceProvider>(context)
+                                .speciesListFiltered;
+                        return Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: TextField(
+                                  autofocus: true,
+                                  decoration: InputDecoration(
+                                    hintText:
+                                        "Search for species in Norwegian or Latin",
+                                    suffixIcon: IconButton(
+                                      onPressed: () {
+                                        Provider.of<InferenceProvider>(context,
+                                                listen: false)
+                                            .filterSpecies('');
+                                        textEditingController.clear();
+                                      },
+                                      icon: Icon(Icons.clear),
+                                    ),
+                                  ),
+                                  controller: textEditingController,
+                                  onChanged: (value) =>
+                                      Provider.of<InferenceProvider>(context,
+                                              listen: false)
+                                          .filterSpecies(value)),
+                            ),
+                            if (speciesListFiltered.isNotEmpty)
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: ListView.builder(
+                                      itemCount: speciesListFiltered.length,
+                                      itemBuilder: ((context, index) =>
+                                          ListTile(
+                                            onTap: () =>
+                                                Provider.of<InferenceProvider>(
+                                                        context,
+                                                        listen: false)
+                                                    .approveSpecie(
+                                              speciesListFiltered[index],
+                                            ),
+                                            title: Text(
+                                                speciesListFiltered[index]
+                                                    .nameNb!),
+                                            subtitle: Text(
+                                                speciesListFiltered[index]
+                                                    .nameLatin!),
+                                            trailing:
+                                                Provider.of<InferenceProvider>(
+                                                            context)
+                                                        .approvedSpecies
+                                                        .map((e) => e
+                                                            .inferenceSpecie
+                                                            .gbifId)
+                                                        .contains(
+                                                            speciesListFiltered[
+                                                                    index]
+                                                                .gbifId)
+                                                    ? Icon(Icons.check)
+                                                    : null,
+                                          ))),
+                                ),
+                              )
+                          ],
+                        );
+                      })),
+                  child: Row(
+                    children: [
+                      Icon(Icons.add),
+                      Text('Add specie manually'),
+                    ],
+                  )),
+            ),
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SuggestedSpeciesWidget(),
+                  VerticalDivider(),
+                  ApprovedSpeciesWidget(),
+                ],
+              ),
+            ),
+            Row(
+              children: [
+                Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                          '${Provider.of<InferenceProvider>(context).getBufferSize.toStringAsFixed(0)} frames'),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                          '${(Provider.of<InferenceProvider>(context).getThreshold * 100).toStringAsFixed(0)} %'),
+                    ),
+                  ],
+                ),
+                Expanded(
+                  child: Column(
+                    children: [
+                      Slider(
+                          min: 1.0,
+                          max: 100.0,
+                          value: Provider.of<InferenceProvider>(context)
+                              .getBufferSize
+                              .toDouble(),
+                          onChanged: (val) => Provider.of<InferenceProvider>(
+                                  context,
+                                  listen: false)
+                              .setBufferSize = val.toInt()),
+                      Slider(
+                          value: Provider.of<InferenceProvider>(context)
+                              .getThreshold,
+                          onChanged: (val) => Provider.of<InferenceProvider>(
+                                  context,
+                                  listen: false)
+                              .setThreshold = val),
+                    ],
+                  ),
+                ),
+                Container(
+                  width: 70,
+                )
+              ],
             )
-          ],
-        )
-      ]),
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
-      floatingActionButton: SpeedDial(
-        openCloseDial: isDialOpen,
-        icon: Icons.menu,
-        children: [
-          SpeedDialChild(
-              label: 'Reset',
-              onTap: () =>
-                  Provider.of<InferenceProvider>(context, listen: false)
-                      .resetInference(),
-              child: Icon(Icons.refresh)),
-          SpeedDialChild(
-            label: 'Probability threshold',
-            child: Icon(Icons.settings),
-          )
-        ],
-      ),
+          ]),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.miniEndFloat,
+          floatingActionButton: FloatingActionButton(
+            onPressed: () => toggleRecording(),
+            backgroundColor:
+                isRecording ? Colors.red.shade400 : Colors.green.shade400,
+            child: isRecording ? Icon(Icons.stop) : Icon(Icons.start),
+          )),
     );
   }
 }
