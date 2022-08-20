@@ -1,6 +1,6 @@
 name: naturinorge_guide
 description: A new Flutter project.
-version: 0.0.37+37
+version: 0.0.38+38
 environment:
   sdk: '>=2.12.0 <3.0.0'
 dependencies:
