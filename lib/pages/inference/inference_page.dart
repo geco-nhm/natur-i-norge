@@ -79,162 +79,166 @@ class _InferencePageState extends State<InferencePage> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-          body: Column(mainAxisSize: MainAxisSize.max, children: [
-            Expanded(
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: AspectRatio(
-                        aspectRatio: 720 / 1280,
-                        child: CameraPreview(controller)),
-                  ),
-                  Expanded(flex: 1, child: PredictedTypesWidget()),
-                ],
-              ),
-            ),
-            Divider(),
-            // LinearProgressIndicator(
-            //   value: Provider.of<InferenceProvider>(context).predictionProgress,
-            // ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton(
-                  onPressed: () => showModalBottomSheet(
-                      enableDrag: true,
-                      context: context,
-                      builder: ((context) {
-                        var speciesListFiltered =
-                            Provider.of<InferenceProvider>(context)
-                                .speciesListFiltered;
-                        return Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: TextField(
-                                  autofocus: true,
-                                  decoration: InputDecoration(
-                                    hintText:
-                                        "Search for species in Norwegian or Latin",
-                                    suffixIcon: IconButton(
-                                      onPressed: () {
-                                        Provider.of<InferenceProvider>(context,
-                                                listen: false)
-                                            .filterSpecies('');
-                                        textEditingController.clear();
-                                      },
-                                      icon: Icon(Icons.clear),
-                                    ),
-                                  ),
-                                  controller: textEditingController,
-                                  onChanged: (value) =>
-                                      Provider.of<InferenceProvider>(context,
-                                              listen: false)
-                                          .filterSpecies(value)),
-                            ),
-                            if (speciesListFiltered.isNotEmpty)
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: ListView.builder(
-                                      itemCount: speciesListFiltered.length,
-                                      itemBuilder: ((context, index) =>
-                                          ListTile(
-                                            onTap: () =>
-                                                Provider.of<InferenceProvider>(
-                                                        context,
-                                                        listen: false)
-                                                    .approveSpecie(
-                                              speciesListFiltered[index],
-                                            ),
-                                            title: Text(
-                                                speciesListFiltered[index]
-                                                    .nameNb!),
-                                            subtitle: Text(
-                                                speciesListFiltered[index]
-                                                    .nameLatin!),
-                                            trailing:
-                                                Provider.of<InferenceProvider>(
-                                                            context)
-                                                        .approvedSpecies
-                                                        .map((e) => e
-                                                            .inferenceSpecie
-                                                            .gbifId)
-                                                        .contains(
-                                                            speciesListFiltered[
-                                                                    index]
-                                                                .gbifId)
-                                                    ? Icon(Icons.check)
-                                                    : null,
-                                          ))),
-                                ),
-                              )
-                          ],
-                        );
-                      })),
-                  child: Row(
-                    children: [
-                      Icon(Icons.add),
-                      Text('Add specie manually'),
-                    ],
-                  )),
-            ),
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SuggestedSpeciesWidget(),
-                  VerticalDivider(),
-                  ApprovedSpeciesWidget(),
-                ],
-              ),
-            ),
-            Row(
-              children: [
-                Column(
+          body: SafeArea(
+            child: Column(mainAxisSize: MainAxisSize.max, children: [
+              Expanded(
+                child: Row(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                          '${Provider.of<InferenceProvider>(context).getBufferSize.toStringAsFixed(0)} frames'),
+                    Expanded(
+                      flex: 1,
+                      child: AspectRatio(
+                          aspectRatio: 720 / 1280,
+                          child: CameraPreview(controller)),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                          '${(Provider.of<InferenceProvider>(context).getThreshold * 100).toStringAsFixed(0)} %'),
-                    ),
+                    Expanded(flex: 1, child: PredictedTypesWidget()),
                   ],
                 ),
-                Expanded(
-                  child: Column(
+              ),
+              Divider(),
+              // LinearProgressIndicator(
+              //   value: Provider.of<InferenceProvider>(context).predictionProgress,
+              // ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                    onPressed: () => showModalBottomSheet(
+                        enableDrag: true,
+                        context: context,
+                        builder: ((context) {
+                          var speciesListFiltered =
+                              Provider.of<InferenceProvider>(context)
+                                  .speciesListFiltered;
+                          return Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: TextField(
+                                    autofocus: true,
+                                    decoration: InputDecoration(
+                                      hintText:
+                                          "Search for species in Norwegian or Latin",
+                                      suffixIcon: IconButton(
+                                        onPressed: () {
+                                          Provider.of<InferenceProvider>(
+                                                  context,
+                                                  listen: false)
+                                              .filterSpecies('');
+                                          textEditingController.clear();
+                                        },
+                                        icon: Icon(Icons.clear),
+                                      ),
+                                    ),
+                                    controller: textEditingController,
+                                    onChanged: (value) =>
+                                        Provider.of<InferenceProvider>(context,
+                                                listen: false)
+                                            .filterSpecies(value)),
+                              ),
+                              if (speciesListFiltered.isNotEmpty)
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: ListView.builder(
+                                        itemCount: speciesListFiltered.length,
+                                        itemBuilder: ((context, index) =>
+                                            ListTile(
+                                              onTap: () => Provider.of<
+                                                          InferenceProvider>(
+                                                      context,
+                                                      listen: false)
+                                                  .approveSpecie(
+                                                speciesListFiltered[index],
+                                              ),
+                                              title: Text(
+                                                  speciesListFiltered[index]
+                                                      .nameNb!),
+                                              subtitle: Text(
+                                                  speciesListFiltered[index]
+                                                      .nameLatin!),
+                                              trailing: Provider.of<
+                                                              InferenceProvider>(
+                                                          context)
+                                                      .approvedSpecies
+                                                      .map((e) => e
+                                                          .inferenceSpecie
+                                                          .gbifId)
+                                                      .contains(
+                                                          speciesListFiltered[
+                                                                  index]
+                                                              .gbifId)
+                                                  ? Icon(Icons.check)
+                                                  : null,
+                                            ))),
+                                  ),
+                                )
+                            ],
+                          );
+                        })),
+                    child: Row(
+                      children: [
+                        Icon(Icons.add),
+                        Text('Add specie manually'),
+                      ],
+                    )),
+              ),
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SuggestedSpeciesWidget(),
+                    VerticalDivider(),
+                    ApprovedSpeciesWidget(),
+                  ],
+                ),
+              ),
+              Divider(),
+              Row(
+                children: [
+                  Column(
                     children: [
-                      Slider(
-                          min: 1.0,
-                          max: 100.0,
-                          value: Provider.of<InferenceProvider>(context)
-                              .getBufferSize
-                              .toDouble(),
-                          onChanged: (val) => Provider.of<InferenceProvider>(
-                                  context,
-                                  listen: false)
-                              .setBufferSize = val.toInt()),
-                      Slider(
-                          value: Provider.of<InferenceProvider>(context)
-                              .getThreshold,
-                          onChanged: (val) => Provider.of<InferenceProvider>(
-                                  context,
-                                  listen: false)
-                              .setThreshold = val),
+                      // Padding(
+                      //   padding: const EdgeInsets.all(8.0),
+                      //   child: Text(
+                      //       '${Provider.of<InferenceProvider>(context).getBufferSize.toStringAsFixed(0)} frames'),
+                      // ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                            '${(Provider.of<InferenceProvider>(context).getThreshold * 100).toStringAsFixed(0)} %'),
+                      ),
                     ],
                   ),
-                ),
-                Container(
-                  width: 70,
-                )
-              ],
-            )
-          ]),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        // Slider(
+                        //     min: 1.0,
+                        //     max: 100.0,
+                        //     value: Provider.of<InferenceProvider>(context)
+                        //         .getBufferSize
+                        //         .toDouble(),
+                        //     onChanged: (val) => Provider.of<InferenceProvider>(
+                        //             context,
+                        //             listen: false)
+                        //         .setBufferSize = val.toInt()),
+                        Slider(
+                            value: Provider.of<InferenceProvider>(context)
+                                .getThreshold,
+                            onChanged: (val) => Provider.of<InferenceProvider>(
+                                    context,
+                                    listen: false)
+                                .setThreshold = val),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: 70,
+                  )
+                ],
+              )
+            ]),
+          ),
           floatingActionButtonLocation:
               FloatingActionButtonLocation.miniEndFloat,
           floatingActionButton: FloatingActionButton(
