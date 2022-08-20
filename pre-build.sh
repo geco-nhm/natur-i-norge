@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 sh ./install.sh -d
 flutter pub get
 cp -r tf_lib/ios/TensorFlowLiteC.framework ~/.pub-cache/hosted/pub.dartlang.org/tflite_flutter-0.9.0/ios
