@@ -242,6 +242,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "filter_list",
+      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/filter_list-1.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "fixnum",
       "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dartlang.org/fixnum-1.0.0",
       "packageUri": "lib/",
@@ -794,7 +800,7 @@
       "languageVersion": "2.12"
     }
   ],
-  "generated": "2022-08-16T07:57:49.820335Z",
+  "generated": "2022-08-17T23:13:18.217336Z",
   "generator": "pub",
   "generatorVersion": "2.19.0-79.0.dev"
 }

@@ -1,0 +1,6 @@
+#!/bin/bash
+./install.sh
+flutter pub get
+cp -r tf_lib/ios/TensorFlowLiteC.framework ~/.pub-cache/hosted/pub.dartlang.org/tflite_flutter-0.9.0/ios
+cp -r tf_lib/ios/TensorFlowLiteCMetal.framework ~/.pub-cache/hosted/pub.dartlang.org/tflite_flutter-0.9.0/ios
+cp -r tf_lib/ios/tflite_flutter.podspec ~/.pub-cache/hosted/pub.dartlang.org/tflite_flutter-0.9.0/ios
