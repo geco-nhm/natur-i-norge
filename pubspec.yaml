@@ -2,44 +2,41 @@ name: naturinorge_guide
 description: A new Flutter project.
 version: 0.0.38+38
 environment:
-  sdk: '>=2.12.0 <3.0.0'
+  sdk: '>=2.14.0 <3.0.0'
 dependencies:
-  moor: ^4.6.1+1
-  drift: ^1.7.1
-  sqlite3_flutter_libs: ^0.5.0
-  path_provider: ^2.0.0
-  path: ^1.8.2
-  provider: ^6.0.0
+  drift: ^2.8.0
+  sqlite3_flutter_libs: ^0.5.15
+  path_provider: ^2.0.15
+  path: ^1.8.3
+  provider: ^6.0.5
   built_collection: ^5.1.1
-  built_value: ^8.1.2
-  easy_localization: ^3.0.0
-  auto_size_text: ^3.0.0-nullsafety.0
-  flutter_staggered_grid_view: ^0.4.0
-  toggle_switch: ^1.2.0
-  uuid: ^3.0.4
-  url_launcher: ^6.0.10
+  built_value: ^8.5.0
+  easy_localization: ^3.0.2
+  auto_size_text: ^3.0.0
+  flutter_staggered_grid_view: ^0.6.2
+  toggle_switch: ^2.1.0
+  uuid: ^3.0.7
+  url_launcher: ^6.1.11
   filter_list: ^1.0.2
-  camera: ^0.9.8+1
-  image: ^3.0.3
-  tflite_flutter: ^0.9.0
-  tflite_flutter_helper:
-    git:
-      url: 'https://github.com/filofan1/tflite_flutter_helper.git'
-      ref: onRequestPermissionsResult-parameters
+  camera: ^0.10.5
+  image: ^3.0.2
+  tflite_flutter: ^0.9.5
+  tflite_flutter_plus: ^0.0.1
+  tflite_flutter_helper_plus: ^0.0.2
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.3
-  collection: ^1.15.0
-  flutter_speed_dial: ^6.0.0
+  cupertino_icons: ^1.0.5
+  collection: ^1.17.1
+  flutter_speed_dial: ^6.3.0
 dependency_overrides:
-  camera: ^0.9.8+1
+  image: ^3.0.2
 dev_dependencies:
   flutter_driver:
     sdk: flutter
-  drift_dev: ^1.7.1
-  build_runner: ^2.2.0
-  flutter_launcher_icons: ^0.9.2
-  flutter_native_splash: ^1.2.2
+  drift_dev: ^2.8.2
+  build_runner: ^2.4.4
+  flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: ^2.3.0
 flutter_icons:
   image_path: assets/launch_icon/ios_icon.png
   remove_alpha_ios: true

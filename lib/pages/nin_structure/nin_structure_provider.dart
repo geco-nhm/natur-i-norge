@@ -38,7 +38,7 @@ class NinStructureProvider extends ChangeNotifier {
     if (_selectedMajorTypeGroupData != data) {
       _selectedMajorTypeGroupData = data;
       _selectedMajorTypeData = null;
-      _ninMajorTypes = await db!.filteredMajorTypes(data!.data!.id, _locale);
+      _ninMajorTypes = await db!.filteredMajorTypes(data!.data!.id!, _locale);
       notifyListeners();
     }
     Navigator.of(context)

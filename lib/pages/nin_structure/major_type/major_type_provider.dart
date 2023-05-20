@@ -156,7 +156,7 @@ class MajorTypeProvider extends ChangeNotifier {
   Future _populateAllAxis() async {
     _allAxis = List<AxisBlock>.empty(growable: true);
     var majorTypeLecs =
-        await db!.getMajorTypeLecByMajorTypeId(_majorType!.data!.id);
+        await db!.getMajorTypeLecByMajorTypeId(_majorType!.data!.id!);
     for (var majorTypeLec in majorTypeLecs) {
       var lecAdapter = MajorTypeLecAdapter(locale, majorTypeLec);
       await lecAdapter.getRelations();
@@ -179,13 +179,13 @@ class MajorTypeProvider extends ChangeNotifier {
     Timeline.startSync('Get all minor types');
     var minorTypesScaledIds = await db!
         .getMinorTypeScaledIdsByMajorTypeAndScale(
-            _majorType!.data, _selectedMappingScale);
+            _majorType!.data!, _selectedMappingScale!);
     Timeline.finishSync();
     var res = List<MinorTypeScaledAdapter>.empty(growable: true);
     for (var minorTypeScaledId in minorTypesScaledIds) {
       Timeline.startSync('Get relations for $minorTypeScaledId');
       var minorTypeScaled = MinorTypeScaledAdapter(
-          locale, _selectedMappingScale, minorTypeScaledId);
+          locale, _selectedMappingScale, minorTypeScaledId!);
       await minorTypeScaled.getRelations();
       Timeline.finishSync();
       res.add(minorTypeScaled);

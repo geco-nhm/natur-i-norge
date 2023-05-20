@@ -1,13 +1,13 @@
+import 'package:drift/backends.dart';
+import 'package:drift/web.dart';
 import 'package:flutter/services.dart';
-import 'package:moor/backends.dart';
-import 'package:moor/moor_web.dart';
 import 'package:path/path.dart';
 
 Future<DelegatedDatabase> getLazyDb() async {
   print("Constructing web database");
   final dbAssetName = 'nin_database.db';
   final dbName = 'nin_85.db';
-  final storage = await MoorWebStorage.indexedDbIfSupported(dbName);
+  final storage = await DriftWebStorage.indexedDbIfSupported(dbName);
   // await MoorWebStorage.volatile();
   return WebDatabase.withStorage(
     storage,

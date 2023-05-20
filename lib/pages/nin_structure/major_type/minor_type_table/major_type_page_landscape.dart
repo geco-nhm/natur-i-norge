@@ -32,7 +32,7 @@ class MajorTypePageLandscape extends StatelessWidget {
           children: [
             Text(
               majorType!.description!,
-              style: Theme.of(context).textTheme.bodyText1,
+              style: Theme.of(context).textTheme.bodyLarge,
             ),
           ],
         ),
@@ -71,7 +71,7 @@ class MajorTypePageLandscape extends StatelessWidget {
                             // trimMode: TrimMode.Line,
                             // trimExpandedText: LocaleKeys.read_mode.tr(),
                             // trimCollapsedText: LocaleKeys.show_less.tr(),
-                            style: Theme.of(context).textTheme.bodyText1,
+                            style: Theme.of(context).textTheme.bodyLarge,
                           ),
                         ),
                       ),

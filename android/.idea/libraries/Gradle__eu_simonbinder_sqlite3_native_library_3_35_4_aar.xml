@@ -1,9 +1,8 @@
 <component name="libraryTable">
   <library name="Gradle: eu.simonbinder:sqlite3-native-library:3.35.4@aar">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/988aefd6b45cc029dbe49c1a3880c8fe/transformed/jetified-sqlite3-native-library-3.35.4/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/988aefd6b45cc029dbe49c1a3880c8fe/transformed/jetified-sqlite3-native-library-3.35.4/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/988aefd6b45cc029dbe49c1a3880c8fe/transformed/jetified-sqlite3-native-library-3.35.4/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/0a0b65fa2f8a506d78d525f9cbaf2702/transformed/jetified-sqlite3-native-library-3.35.4/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/0a0b65fa2f8a506d78d525f9cbaf2702/transformed/jetified-sqlite3-native-library-3.35.4/AndroidManifest.xml" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>

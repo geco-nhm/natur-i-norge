@@ -26,7 +26,7 @@ class MajorTypePagePortrait extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 4.0),
         child: AutoSizeText(
           majorType!.name!,
-          style: Theme.of(context).textTheme.headline4,
+          style: Theme.of(context).textTheme.headlineMedium,
           textAlign: TextAlign.center,
         ),
       ),

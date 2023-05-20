@@ -19,9 +19,13 @@ class ImageUtils {
 
   /// Converts a [CameraImage] in BGRA888 format to [imageLib.Image] in RGB format
   static imageLib.Image convertBGRA8888ToImage(CameraImage cameraImage) {
-    imageLib.Image img = imageLib.Image.fromBytes(cameraImage.planes[0].width!,
-        cameraImage.planes[0].height!, cameraImage.planes[0].bytes,
-        format: imageLib.Format.bgra);
+    imageLib.Image img = imageLib.Image.fromBytes(
+      cameraImage.planes[0].width!,
+      cameraImage.planes[0].height!,
+      cameraImage.planes[0].bytes,
+      // order: imageLib.ChannelOrder.bgra,
+      format: imageLib.Format.bgra,
+    );
     return img;
   }
 
@@ -45,32 +49,23 @@ class ImageUtils {
         final u = cameraImage.planes[1].bytes[uvIndex];
         final v = cameraImage.planes[2].bytes[uvIndex];
 
-        image.data[index] = ImageUtils.yuv2rgb(y, u, v);
+        int r = (y + v * 1436 / 1024 - 179).round();
+        int g = (y - u * 46549 / 131072 + 44 - v * 93604 / 131072 + 91).round();
+        int b = (y + u * 1814 / 1024 - 227).round();
+
+        // Clipping RGB values to be inside boundaries [ 0 , 255 ]
+        r = r.clamp(0, 255);
+        g = g.clamp(0, 255);
+        b = b.clamp(0, 255);
+        // image.data!.setPixelRgb(h, w, r, g, b);
+        image.setPixelRgba(h, w, r, g, b);
       }
     }
     return image;
   }
 
-  /// Convert a single YUV pixel to RGB
-  static int yuv2rgb(int y, int u, int v) {
-    // Convert yuv pixel to rgb
-    int r = (y + v * 1436 / 1024 - 179).round();
-    int g = (y - u * 46549 / 131072 + 44 - v * 93604 / 131072 + 91).round();
-    int b = (y + u * 1814 / 1024 - 227).round();
-
-    // Clipping RGB values to be inside boundaries [ 0 , 255 ]
-    r = r.clamp(0, 255);
-    g = g.clamp(0, 255);
-    b = b.clamp(0, 255);
-
-    return 0xff000000 |
-        ((b << 16) & 0xff0000) |
-        ((g << 8) & 0xff00) |
-        (r & 0xff);
-  }
-
   static void saveImage(imageLib.Image image, [int i = 0]) async {
-    List<int> jpeg = imageLib.JpegEncoder().encodeImage(image);
+    List<int> jpeg = imageLib.encodeJpg(image);
     final appDir = await getTemporaryDirectory();
     final appPath = appDir.path;
     final fileOnDevice = File('$appPath/out$i.jpg');

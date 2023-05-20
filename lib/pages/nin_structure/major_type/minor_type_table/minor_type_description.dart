@@ -46,7 +46,7 @@ class _MinorTypeDescriptionState extends State<MinorTypeDescription>
       padding: const EdgeInsets.all(8.0),
       child: Text(
         mt.name,
-        style: Theme.of(context).textTheme.headline4,
+        style: Theme.of(context).textTheme.headlineMedium,
         textAlign: TextAlign.center,
       ),
     ));
@@ -55,7 +55,7 @@ class _MinorTypeDescriptionState extends State<MinorTypeDescription>
         padding: const EdgeInsets.all(8.0),
         child: Text(
           mt.description,
-          style: Theme.of(context).textTheme.subtitle2,
+          style: Theme.of(context).textTheme.titleSmall,
           textAlign: TextAlign.center,
         ),
       ));
@@ -65,7 +65,7 @@ class _MinorTypeDescriptionState extends State<MinorTypeDescription>
         padding: const EdgeInsets.all(8.0),
         child: Text(
           key,
-          style: Theme.of(context).textTheme.headline5,
+          style: Theme.of(context).textTheme.headlineSmall,
           textAlign: TextAlign.center,
         ),
       ));

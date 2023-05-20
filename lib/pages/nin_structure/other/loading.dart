@@ -3,7 +3,7 @@ import 'package:naturinorge_guide/pages/nin_structure/major_type/major_type_prov
 import 'package:naturinorge_guide/pages/nin_structure/nin_structure_provider.dart';
 import 'package:provider/provider.dart';
 
-class LoadingWidget extends StatelessWidget with PreferredSizeWidget {
+class LoadingWidget extends StatelessWidget implements PreferredSizeWidget {
   const LoadingWidget({Key? key}) : super(key: key);
 
   @override

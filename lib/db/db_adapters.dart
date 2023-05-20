@@ -28,8 +28,8 @@ class StandardSegmentAdapter {
     //         elementarySegments.map((e) => e.id).toList());
     Timeline.startSync('get esgs');
     var esgs = await db!.getElementarySegmentGroupByStandardSegmentAndMajorType(
-        standardSegment.data!.id, majorTypeId);
-    var esIds = esgs.map((e) => e.elementarySegmentId).toSet().toList();
+        standardSegment.data!.id!, majorTypeId!);
+    var esIds = esgs.map((e) => e.elementarySegmentId!).toSet().toList();
     Timeline.finishSync();
     Timeline.startSync('get es ids');
     elementarySegments = await db!.getElementarySegmentsByIds(esIds);
@@ -46,7 +46,7 @@ class StandardSegmentAdapter {
 
 class ElementarySegmentGroupAdapter {
   final Locale? locale;
-  final String? elementarySegmentGroupId;
+  final String elementarySegmentGroupId;
 
   late List<NinElementarySegmentData> elementarySegments;
   int? order;
@@ -82,13 +82,13 @@ class MajorTypeLecAdapter {
   MajorTypeLecAdapter(this.locale, this.majorTypeLec);
   Future getRelations() async {
     // print('Get Lec relations, majorTypeLec.id = ${majorTypeLec.id}');
-    lec = await db!.getLecById(majorTypeLec.lecId, locale);
-    elementarySegments = await db!.getElementarySegmentsByLec(lec.data);
+    lec = await db!.getLecById(majorTypeLec.lecId!, locale);
+    elementarySegments = await db!.getElementarySegmentsByLec(lec.data!);
     var elementarySegmentGroupIds = await db!
         .getGadElementarySegmentGroupsIdsByMajorTypeLecId(majorTypeLec);
 
     for (var esg in elementarySegmentGroupIds) {
-      var esga = ElementarySegmentGroupAdapter(locale, esg);
+      var esga = ElementarySegmentGroupAdapter(locale, esg!);
       await esga.getRelations();
       gadElementarySegmentGroups.add(esga);
     }
@@ -104,18 +104,18 @@ class LecAdapter {
 
   LecAdapter(this.locale, this.lec);
   Future getRelations() async {
-    var ess = await db!.getElementarySegmentsGroupDetailsByLec(lec);
+    var ess = await db!.getElementarySegmentsGroupDetailsByLec(lec!);
     elementarySegments = await Detailed<NinElementarySegmentGroupDetailData>()
         .fromList(ess, locale);
     detailedLec = Detailed<NinLECData>();
     await detailedLec.initialize(lec, locale);
-    majorTypes = await db!.getMajorTypesByLec(lec!.id, locale);
+    majorTypes = await db!.getMajorTypesByLec(lec!.id!, locale);
   }
 }
 
 class MinorTypeScaledAdapter {
   final NinMappingScaleData? mappingScale;
-  final String? minorTypeScaledId;
+  final String minorTypeScaledId;
   final Locale locale;
   List<MinorTypeAdapter>? minorTypes;
   late String name;
@@ -160,7 +160,7 @@ class MinorTypeAdapter {
   Future getRelations() async {
     Timeline.startSync('Get all standard segments');
     var standardSegmentsData =
-        await db!.getStandardSegmentsByMinorType(minorType.data, locale);
+        await db!.getStandardSegmentsByMinorType(minorType.data!, locale);
     Timeline.finishSync();
     var res = List<StandardSegmentAdapter>.empty(growable: true);
     for (var ss in standardSegmentsData) {
@@ -189,17 +189,18 @@ class MajorTypeAdapter {
   Future getRelations(NinMappingScaleData? mappingScale) async {
     // print('Start getting relations for ${majorType.data.id}');
     var minorTypeScaledIds = await db!.getMinorTypeScaledIdsByMajorTypeAndScale(
-        majorType!.data, mappingScale);
+        majorType!.data!, mappingScale!);
     var newMinorTypes = List<MinorTypeScaledAdapter>.empty(growable: true);
     for (var minorTypeScaledId in minorTypeScaledIds) {
-      var mts = MinorTypeScaledAdapter(locale, mappingScale, minorTypeScaledId);
+      var mts =
+          MinorTypeScaledAdapter(locale, mappingScale, minorTypeScaledId!);
       await mts.getRelations();
       newMinorTypes.add(mts);
     }
     minorTypes = newMinorTypes;
 
     var majorTypeLecs =
-        await db!.getMajorTypeLecByMajorTypeId(majorType!.data!.id);
+        await db!.getMajorTypeLecByMajorTypeId(majorType!.data!.id!);
 
     var newLecs = List<MajorTypeLecAdapter>.empty(growable: true);
     for (final mtl in majorTypeLecs) {

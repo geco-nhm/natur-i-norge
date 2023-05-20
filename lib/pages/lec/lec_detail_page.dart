@@ -15,7 +15,7 @@ class LecDetailPage extends StatelessWidget {
 
     body.add(AutoSizeText(
       lec!.detailedLec.name ?? '',
-      style: Theme.of(context).textTheme.headline4,
+      style: Theme.of(context).textTheme.headlineMedium,
       textAlign: TextAlign.center,
       wrapWords: false,
     ));
@@ -24,7 +24,7 @@ class LecDetailPage extends StatelessWidget {
       lec!.detailedLec.other!.forEach((key, value) {
         body.add(Text(
           key,
-          style: Theme.of(context).textTheme.headline2,
+          style: Theme.of(context).textTheme.displayMedium,
           textAlign: TextAlign.center,
         ));
       });
@@ -110,7 +110,7 @@ class ElementarySegmentWidget extends StatelessWidget {
               child: Material(
                   child: Text(
                 elementarySegmemnt!.data!.value!,
-                style: Theme.of(context).textTheme.headline4,
+                style: Theme.of(context).textTheme.headlineMedium,
               )),
             ),
             VerticalDivider(),

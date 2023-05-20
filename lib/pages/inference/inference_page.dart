@@ -1,14 +1,8 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:naturinorge_guide/db/nin_db.dart';
 import 'package:naturinorge_guide/main.dart';
-import 'package:naturinorge_guide/pages/inference/lib/clasifier.dart';
 import 'package:naturinorge_guide/pages/inference/lib/inference_provider.dart';
 import 'package:naturinorge_guide/pages/inference/lib/predicted_widget.dart';
-import 'package:naturinorge_guide/pages/inference/lib/tools.dart';
-import 'package:provider/provider.dart';
 import 'package:provider/provider.dart';
 
 class InferencePage extends StatefulWidget {

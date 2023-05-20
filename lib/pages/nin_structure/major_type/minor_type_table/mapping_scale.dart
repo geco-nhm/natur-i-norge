@@ -21,7 +21,7 @@ class MappingScaleWidget extends StatelessWidget {
         labels: labels,
         onToggle: (value) async {
           await Provider.of<MajorTypeProvider>(context, listen: false)
-              .setMappingScale(value);
+              .setMappingScale(value!);
         },
         initialLabelIndex:
             Provider.of<MajorTypeProvider>(context, listen: false)

@@ -36,8 +36,8 @@ class Detailed<K> {
   }
 
   Future _getRelations() async {
-    var details = await db!.getDetails(detailId, locale);
-    if (details == null || details.length == 0) {
+    var details = await db!.getDetails(detailId!, locale);
+    if (details.length == 0) {
       return;
     }
 

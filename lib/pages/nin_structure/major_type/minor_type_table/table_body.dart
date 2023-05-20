@@ -17,39 +17,45 @@ class TableBody extends StatelessWidget {
         child: CircularProgressIndicator(),
       );
     }
-    var minorTypesBlocks = Provider.of<MajorTypeProvider>(context)
-        .minorTypeScaledBlocks!
-        .map((e) => ScaledMinorTypeWidget(
-              // key: ValueKey(uuid.v4()),
-              minorTypeBlock: e,
-            ))
-        .toList();
+    // var minorTypesBlocks = Provider.of<MajorTypeProvider>(context)
+    //     .minorTypeScaledBlocks!
+    //     .map((e) => ScaledMinorTypeWidget(
+    //           // key: ValueKey(uuid.v4()),
+    //           minorTypeBlock: e,
+    //         ))
+    //     .toList();
     var staggeredTiles = Provider.of<MajorTypeProvider>(context)
         .minorTypeScaledBlocks!
-        .map((e) => StaggeredTile.count(e!.width, e.height.toDouble()))
+        .map((e) => StaggeredGridTile.count(
+            crossAxisCellCount: e!.width,
+            mainAxisCellCount: e.height.toDouble(),
+            child: ScaledMinorTypeWidget(
+              // key: ValueKey(uuid.v4()),
+              minorTypeBlock: e,
+            )))
         .toList();
     return Stack(
       children: [
         Container(
           width: xSize,
           height: ySize,
-          child: StaggeredGridView.count(
+          child: StaggeredGrid.count(
             key: ValueKey(uuid.v4()),
-            addAutomaticKeepAlives: true,
-            padding: EdgeInsets.all(4.0),
+            // addAutomaticKeepAlives: true,
+            // padding: EdgeInsets.all(4.0),
             crossAxisSpacing: 2.0,
             mainAxisSpacing: 2.0,
-            physics: new NeverScrollableScrollPhysics(),
+            // physics: new NeverScrollableScrollPhysics(),
             crossAxisCount: Provider.of<MajorTypeProvider>(context)
                 .xAxis!
                 .standardSegments
                 .expand((element) => element.elementarySegmentGroups)
                 .length,
-            reverse: true,
-            primary: true,
+            // reverse: true,
+            // primary: true,
             // shrinkWrap: true,
-            children: minorTypesBlocks,
-            staggeredTiles: staggeredTiles,
+            axisDirection: AxisDirection.up,
+            children: staggeredTiles,
           ),
         ),
         if (Provider.of<MajorTypeProvider>(context).gadArray != null &&

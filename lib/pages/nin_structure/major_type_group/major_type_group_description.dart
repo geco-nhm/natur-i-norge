@@ -27,7 +27,7 @@ class MajorTypeGroupDetails extends StatelessWidget {
                   .selectedMajorTypeGroup!
                   .name!,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.subtitle1,
+              style: Theme.of(context).textTheme.titleMedium,
             ),
             Divider(),
             Text(Provider.of<NinStructureProvider>(context)

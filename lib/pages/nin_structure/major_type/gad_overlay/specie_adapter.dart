@@ -14,8 +14,8 @@ class SpecieAdapter {
 
   SpecieAdapter(this.specie, this.locale, this.majorType);
   Future getRelations() async {
-    var gadValuesData =
-        await db!.getGadValuesBySpeciesId(specie.scientificNameId, majorType!.id);
+    var gadValuesData = await db!
+        .getGadValuesBySpeciesId(specie.scientificNameId!, majorType!.id!);
     gadValues = List<GadValueAdapter>.empty(growable: true);
     for (var gadValueData in gadValuesData) {
       var gadValue = GadValueAdapter(gadValueData, locale);
@@ -24,8 +24,8 @@ class SpecieAdapter {
     }
 
     gadModifiers = List<GadModifierAdpater>.empty(growable: true);
-    var gadModifiersData = await db!.getGadModifiersBySpeciesId(
-        specie.scientificNameId, majorType!.id);
+    var gadModifiersData = await db!
+        .getGadModifiersBySpeciesId(specie.scientificNameId!, majorType!.id!);
     for (var gadModifierData in gadModifiersData) {
       var gadModifier = GadModifierAdpater(locale, gadModifierData);
       await gadModifier.getRelations();
@@ -44,7 +44,7 @@ class GadValueAdapter {
   Future getRelations() async {
     elementarySegmentCombinations = await db!
         .getElementarySegmentCombinationsByElementarySegmentCombinationId(
-            gadValue.elementarySegmentCombinationId);
+            gadValue.elementarySegmentCombinationId!);
     if (elementarySegmentCombinations.length == 0)
       throw Exception(
           'unable to find elementayr segment combination with id: ${gadValue.elementarySegmentCombinationId}');
@@ -52,7 +52,7 @@ class GadValueAdapter {
         List<ElementarySegmentGroupAdapter>.empty(growable: true);
     for (var elementarySegmentCombination in elementarySegmentCombinations) {
       var esg = ElementarySegmentGroupAdapter(
-          locale, elementarySegmentCombination.elementarySegmentGroupId);
+          locale, elementarySegmentCombination.elementarySegmentGroupId!);
       await esg.getRelations();
       elementarySegmentGroupAdapters.add(esg);
     }
@@ -67,6 +67,6 @@ class GadModifierAdpater {
   GadModifierAdpater(this.locale, this.gadModifier);
 
   Future getRelations() async {
-    lec = await db!.getLecById(gadModifier.lecId, locale);
+    lec = await db!.getLecById(gadModifier.lecId!, locale);
   }
 }

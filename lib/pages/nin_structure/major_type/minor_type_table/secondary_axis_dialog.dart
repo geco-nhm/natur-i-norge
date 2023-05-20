@@ -1,8 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:naturinorge_guide/db/db_adapters.dart';
-import 'package:naturinorge_guide/db/nin_db.dart';
-import 'package:naturinorge_guide/details/detailed_adapter.dart';
 import 'package:naturinorge_guide/pages/lec/lec_detail_page.dart';
 import 'package:naturinorge_guide/pages/nin_structure/major_type/major_type_provider.dart';
 import 'package:naturinorge_guide/pages/nin_structure/major_type/minor_type_table/axis_block.dart';
@@ -48,7 +46,7 @@ class SecondaryAxisOptions extends StatelessWidget {
           children: [
             Text(
               'LKM',
-              style: Theme.of(context).textTheme.headline3,
+              style: Theme.of(context).textTheme.displaySmall,
             ),
             StandardSegmentsResetWidget(),
           ],
@@ -95,7 +93,7 @@ class SecondaryAxisWidget extends StatelessWidget {
               }),
           title: Text(
             '${axis!.lecAdapter.lec.data!.id} - ${axis!.lecAdapter.lec.name ?? ""}',
-            style: Theme.of(context).textTheme.subtitle1,
+            style: Theme.of(context).textTheme.titleMedium,
           ),
           subtitle: Center(
             child: Padding(
@@ -104,9 +102,10 @@ class SecondaryAxisWidget extends StatelessWidget {
                 totalSwitches: standarSegments.length,
                 minWidth: 60.0,
                 labels: standarSegments,
-                onToggle: (value) => Provider.of<MajorTypeProvider>(context,
-                        listen: false)
-                    .setSecondaryStandardSegment(axis!.standardSegments[value]),
+                onToggle: (value) =>
+                    Provider.of<MajorTypeProvider>(context, listen: false)
+                        .setSecondaryStandardSegment(
+                            axis!.standardSegments[value!]),
                 initialLabelIndex: axis!.standardSegments.indexWhere((e) =>
                     e.standardSegment.data!.id ==
                     Provider.of<MajorTypeProvider>(context)

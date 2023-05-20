@@ -1,8 +1,8 @@
 import 'dart:io';
 
+import 'package:drift/backends.dart';
+import 'package:drift/native.dart';
 import 'package:flutter/services.dart';
-import 'package:moor/backends.dart';
-import 'package:moor/ffi.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
@@ -11,5 +11,5 @@ Future<DelegatedDatabase> getLazyDb() async {
   final dbFolder = await getApplicationDocumentsDirectory();
   final file = File(p.join(dbFolder.path, 'nin3.sqlite'));
   await file.writeAsBytes(dbFile.buffer.asUint8List());
-  return VmDatabase(file);
+  return NativeDatabase(file);
 }
