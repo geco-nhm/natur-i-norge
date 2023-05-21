@@ -7,7 +7,7 @@ import 'package:naturinorge_guide/db/nin_db.dart';
 import 'package:naturinorge_guide/details/detailed_adapter.dart';
 import 'package:naturinorge_guide/main.dart';
 import 'package:naturinorge_guide/pages/inference/lib/clasifier.dart';
-import 'package:tflite_flutter_helper_plus/tflite_flutter_helper_plus.dart';
+import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
 
 class InferenceProvider extends ChangeNotifier {
   late ReceivePort _receivePort;

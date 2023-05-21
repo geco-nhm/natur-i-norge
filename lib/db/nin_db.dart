@@ -1,10 +1,7 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:drift/drift.dart';
-import 'package:drift/native.dart';
-import 'package:flutter/foundation.dart';
 // import 'package:naturinorge_guide/db/lazy_db_flutter.dart';
 // import 'package:naturinorge_guide/db/lazy_db_web.dart';
 

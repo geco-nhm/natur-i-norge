@@ -30,10 +30,11 @@ class MajorTypePageLandscape extends StatelessWidget {
       body = Container(
         child: Column(
           children: [
-            Text(
-              majorType!.description!,
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
+            if (majorType!.description != null)
+              Text(
+                majorType!.description!,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
           ],
         ),
       );
@@ -66,7 +67,7 @@ class MajorTypePageLandscape extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
-                            majorType!.description!,
+                            majorType!.description ?? "NA",
                             // trimLines: 10,
                             // trimMode: TrimMode.Line,
                             // trimExpandedText: LocaleKeys.read_mode.tr(),
@@ -76,7 +77,6 @@ class MajorTypePageLandscape extends StatelessWidget {
                         ),
                       ),
                       Divider(),
-
                       TableOptions(),
                       Divider(),
 

@@ -10,8 +10,8 @@ class MinorTypeTable extends StatelessWidget {
   static int sidePadding = spacing;
   static double labelWidth = 70.0;
 
-  Size getSize(BuildContext context, BoxConstraints boxContrains) {
-    if (!boxContrains.hasBoundedWidth) {
+  Size getSize(BuildContext context, BoxConstraints boxConstrains) {
+    if (!boxConstrains.hasBoundedWidth) {
       throw Exception("No width constrain for Table Widget");
     }
     var ratio;
@@ -34,14 +34,14 @@ class MinorTypeTable extends StatelessWidget {
           .length
           .toDouble();
     }
-    var maxWidth = boxContrains.maxWidth;
+    var maxWidth = boxConstrains.maxWidth;
     var maxHeight = MediaQuery.of(context).size.height - kToolbarHeight;
 
     double xSize;
     double ySize;
     var envelopeRatio = maxWidth / maxHeight;
     if (envelopeRatio < ratio) {
-      xSize = boxContrains.maxWidth - sidePadding - labelWidth;
+      xSize = boxConstrains.maxWidth - sidePadding - labelWidth;
       ySize = xSize / ratio;
     } else {
       ySize = maxHeight - sidePadding - labelWidth - 40;

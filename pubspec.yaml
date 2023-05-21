@@ -20,9 +20,8 @@ dependencies:
   filter_list: ^1.0.2
   camera: ^0.10.5
   image: ^3.0.2
-  tflite_flutter: ^0.9.5
-  tflite_flutter_plus: ^0.0.1
-  tflite_flutter_helper_plus: ^0.0.2
+  tflite_flutter: ^0.9.0
+  tflite_flutter_helper: ^0.2.1
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.5
@@ -50,3 +49,8 @@ flutter:
   - assets/
   - assets/launch_icon/
   - local/
+flr:
+  core_version: 3.2.0
+  dartfmt_line_length: 80
+  assets: []
+  fonts: []

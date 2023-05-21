@@ -86,7 +86,7 @@ class _MinorTypeDescriptionState extends State<MinorTypeDescription>
           SliverAppBar(
               stretch: true,
               title: Text(
-                  widget.minorTypeBlock!.minorTypeScaled!.minorTypeScaledId!),
+                  widget.minorTypeBlock!.minorTypeScaled!.minorTypeScaledId),
               bottom: detailsList!.length > 1
                   ? PreferredSize(
                       preferredSize: Size.fromHeight(50.0),

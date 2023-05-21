@@ -42,7 +42,6 @@ void main() async {
     // useOnlyLangCode: true,
     // preloaderColor: Colors.black,
     // preloaderWidget: CustomPreloaderWidget(),
-
     // optional assetLoader default used is RootBundleAssetLoader which uses flutter's assetloader
     // install easy_localization_loader for enable custom loaders
     // assetLoader: RootBundleAssetLoader()

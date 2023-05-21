@@ -422,14 +422,10 @@ tflite_flutter
 2.12
 file:///Users/amarok/.pub-cache/hosted/pub.dev/tflite_flutter-0.9.5/
 file:///Users/amarok/.pub-cache/hosted/pub.dev/tflite_flutter-0.9.5/lib/
-tflite_flutter_helper_plus
-2.19
-file:///Users/amarok/.pub-cache/hosted/pub.dev/tflite_flutter_helper_plus-0.0.2/
-file:///Users/amarok/.pub-cache/hosted/pub.dev/tflite_flutter_helper_plus-0.0.2/lib/
-tflite_flutter_plus
-2.19
-file:///Users/amarok/.pub-cache/hosted/pub.dev/tflite_flutter_plus-0.0.1/
-file:///Users/amarok/.pub-cache/hosted/pub.dev/tflite_flutter_plus-0.0.1/lib/
+tflite_flutter_helper
+2.12
+file:///Users/amarok/.pub-cache/hosted/pub.dev/tflite_flutter_helper-0.2.1/
+file:///Users/amarok/.pub-cache/hosted/pub.dev/tflite_flutter_helper-0.2.1/lib/
 timing
 2.14
 file:///Users/amarok/.pub-cache/hosted/pub.dev/timing-1.0.1/
@@ -552,6 +548,6 @@ file:///Users/amarok/SDK/flutter/packages/fuchsia_remote_debug_protocol/
 file:///Users/amarok/SDK/flutter/packages/fuchsia_remote_debug_protocol/lib/
 naturinorge_guide
 2.14
-file:///Users/amarok/src/UIO/NIN/natur-i-norge/
-file:///Users/amarok/src/UIO/NIN/natur-i-norge/lib/
+file:///Users/amarok/src/UIO/NIN/naturinorge_guide/
+file:///Users/amarok/src/UIO/NIN/naturinorge_guide/lib/
 2

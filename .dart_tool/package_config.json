@@ -680,16 +680,10 @@
       "languageVersion": "2.12"
     },
     {
-      "name": "tflite_flutter_helper_plus",
-      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dev/tflite_flutter_helper_plus-0.0.2",
+      "name": "tflite_flutter_helper",
+      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dev/tflite_flutter_helper-0.2.1",
       "packageUri": "lib/",
-      "languageVersion": "2.19"
-    },
-    {
-      "name": "tflite_flutter_plus",
-      "rootUri": "file:///Users/amarok/.pub-cache/hosted/pub.dev/tflite_flutter_plus-0.0.1",
-      "packageUri": "lib/",
-      "languageVersion": "2.19"
+      "languageVersion": "2.12"
     },
     {
       "name": "timing",
@@ -836,7 +830,7 @@
       "languageVersion": "2.14"
     }
   ],
-  "generated": "2023-05-20T22:52:08.982536Z",
+  "generated": "2023-05-21T16:29:07.770993Z",
   "generator": "pub",
   "generatorVersion": "3.1.0-94.0.dev"
 }

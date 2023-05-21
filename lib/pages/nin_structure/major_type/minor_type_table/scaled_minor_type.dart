@@ -28,8 +28,7 @@ class ScaledMinorTypeWidget extends StatelessWidget {
             if (constrains.maxHeight < 20 || constrains.maxWidth < 40) {
               return Center(
                 child: AutoSizeText(
-                  minorTypeBlock!.minorTypeScaled!.minorTypeScaledId!
-                      .split('-')
+                  minorTypeBlock!.minorTypeScaled!.minorTypeScaledId.split('-')
                       .last,
                   maxLines: 1,
                 ),
@@ -37,8 +36,7 @@ class ScaledMinorTypeWidget extends StatelessWidget {
             } else if (constrains.maxHeight < 62 || constrains.maxWidth < 50) {
               return Center(
                 child: AutoSizeText(
-                  minorTypeBlock!.minorTypeScaled!.minorTypeScaledId!
-                      .split('-')
+                  minorTypeBlock!.minorTypeScaled!.minorTypeScaledId.split('-')
                       .sublist(1)
                       .join('-'),
                   maxLines: 1,
@@ -54,7 +52,7 @@ class ScaledMinorTypeWidget extends StatelessWidget {
                       // height: 20,
                       child: Center(
                         child: AutoSizeText(
-                          minorTypeBlock!.minorTypeScaled!.minorTypeScaledId!,
+                          minorTypeBlock!.minorTypeScaled!.minorTypeScaledId,
                           maxLines: 1,
                         ),
                       ),

@@ -4,21 +4,20 @@ import 'dart:isolate';
 import 'package:camera/camera.dart';
 import 'package:naturinorge_guide/pages/inference/lib/tools.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
-import 'package:tflite_flutter_helper_plus/tflite_flutter_helper_plus.dart'
-    as tfh;
-import 'package:tflite_flutter_plus/tflite_flutter_plus.dart' as tf_types;
+import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
+// import 'package:tflite_flutter_plus/tflite_flutter_plus.dart' as tf_types;
 
 class Classifier {
   bool isProcessing = false;
   final _debugName = 'InferenceProvider';
   Interpreter? _interpreter;
-  late final tfh.ImageProcessor _imageProcessor;
+  late final ImageProcessor _imageProcessor;
   final ImageUtils _imageUtils = ImageUtils();
   // late List<List<int>> _outputShapes;
   late List<Tensor> _inputTensors;
   late List<Tensor> _outputTensors;
-  tfh.TensorBuffer probabilityBuffer = tfh.TensorBuffer.createFixedSize(
-      <int>[1, 1230], tf_types.TfLiteType.float32);
+  TensorBuffer probabilityBuffer =
+      TensorBuffer.createFixedSize(<int>[1, 1230], TfLiteType.float32);
 
   /// Types of output tensors
   // late List<TfLiteType> _outputTypes;
@@ -59,10 +58,10 @@ class Classifier {
   }
 
   initImageProcessor() {
-    _imageProcessor = tfh.ImageProcessorBuilder()
-        .add(tfh.ResizeWithCropOrPadOp(720, 720))
+    _imageProcessor = ImageProcessorBuilder()
+        .add(ResizeWithCropOrPadOp(720, 720))
         // .add(NormalizeOp(mean, stddev))
-        .add(tfh.ResizeOp(224, 224, tfh.ResizeMethod.nearestneighbour))
+        .add(ResizeOp(224, 224, ResizeMethod.NEAREST_NEIGHBOUR))
         .build();
   }
 
@@ -76,7 +75,7 @@ class Classifier {
     }
     isProcessing = true;
     var image = ImageUtils.convertCameraImage(cameraImage);
-    tfh.TensorImage tensorImage = tfh.TensorImage.fromImage(image);
+    TensorImage tensorImage = TensorImage.fromImage(image);
     var processedTensorImage = _imageProcessor.process(tensorImage);
     try {
       _interpreter!.run(processedTensorImage.buffer, probabilityBuffer.buffer);
