@@ -47,5 +47,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Species recognition</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Species recognition</string>
 </dict>
 </plist>
