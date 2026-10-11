@@ -240,6 +240,7 @@
 					};
 					97C146ED1CF9000F007C117D = {
 						CreatedOnToolsVersion = 7.3.1;
+						ProvisioningStyle = Manual;
 						LastSwiftMigration = 1100;
 					};
 				};
@@ -703,6 +704,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = no.naturinorge.naturinorgeGuide;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				CODE_SIGN_STYLE = Manual;
+				PROVISIONING_PROFILE_SPECIFIER = "no.naturinorge.naturinorgeGuide AppStore";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";

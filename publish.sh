@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+# DEPRECATED: This script is being deprecated in favor of mobile-ops and Jenkins shared library (flutterPipeline).
+# Retained temporarily for screenshot automation reference (see scripts/automate_screenshots.sh and scripts/automate_ios_screenshots.sh).
+echo "⚠️  NOTE: publish.sh is deprecated. Prefer CI/CD via mobile-ops and Jenkins flutterPipeline." >&2
+
 # publish.sh - Non-interactive publication script for iOS, Android, and Web
 
 # 1. Parse arguments

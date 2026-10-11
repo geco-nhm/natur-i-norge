@@ -48,6 +48,7 @@ dependencies:
   google_fonts: ^8.1.0
   archive: ^4.0.9
   flutter_markdown_plus: ^1.0.7
+  markdown: ^7.3.0
   shared_preferences: ^2.5.2
   geolocator: ^14.0.2
   intl: ^0.20.2

@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -6,11 +9,21 @@ plugins {
     id("com.google.gms.google-services")
 }
 
-val keystoreProperties = org.jetbrains.kotlin.konan.properties.Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(keystorePropertiesFile.inputStream())
+val keystoreProperties = Properties().apply {
+    if (keystorePropertiesFile.exists()) {
+        load(FileInputStream(keystorePropertiesFile))
+    }
 }
+
+val envKeystorePath = System.getenv("KEYSTORE_PATH")
+    ?: run {
+        val vaultSecretKeystore = rootProject.file("../.secrets/release.keystore")
+        if (vaultSecretKeystore.exists()) vaultSecretKeystore.absolutePath else null
+    }
+val envKeystorePassword = System.getenv("STORE_PASSWORD") ?: System.getenv("KEYSTORE_PASSWORD") ?: System.getenv("KEY_STORE_PASSWORD")
+val envKeyAlias = System.getenv("KEY_ALIAS")
+val envKeyPassword = System.getenv("KEY_PASSWORD")
 
 android {
     namespace = "no.naturinorge.naturinorge_guide"
@@ -28,10 +41,20 @@ android {
 
     signingConfigs {
         create("release") {
-            keyAlias = keystoreProperties.getProperty("keyAlias")
-            keyPassword = keystoreProperties.getProperty("keyPassword")
-            storeFile = keystoreProperties.getProperty("storeFile")?.let { file(it) }
-            storePassword = keystoreProperties.getProperty("storePassword")
+            val storeFilePath = keystoreProperties.getProperty("storeFile") ?: envKeystorePath
+            val storePasswordProp = keystoreProperties.getProperty("storePassword") ?: envKeystorePassword
+            val keyAliasProp = keystoreProperties.getProperty("keyAlias") ?: envKeyAlias
+            val keyPasswordProp = keystoreProperties.getProperty("keyPassword") ?: envKeyPassword
+
+            if (storeFilePath != null && storePasswordProp != null && keyAliasProp != null && keyPasswordProp != null) {
+                val resolvedFile = file(storeFilePath)
+                if (resolvedFile.exists()) {
+                    storeFile = resolvedFile
+                    storePassword = storePasswordProp
+                    keyAlias = keyAliasProp
+                    keyPassword = keyPasswordProp
+                }
+            }
         }
     }
 
@@ -48,7 +71,12 @@ android {
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("release")
+            val releaseSigning = signingConfigs.getByName("release")
+            signingConfig = if (releaseSigning.storeFile != null) {
+                releaseSigning
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:naturinorge_guide/src/search/search_highlight.dart';
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('highlightTextSpans marks matched tokens', () {

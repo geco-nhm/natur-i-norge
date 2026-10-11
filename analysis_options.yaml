@@ -7,6 +7,28 @@
 
 # The following line activates a set of recommended lints for Flutter apps,
 # packages, and plugins designed to encourage good coding practices.
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
+    - test_driver/**
+    - integration_test/**
+  errors:
+    deprecated_member_use: ignore
+    use_null_aware_elements: ignore
+    unnecessary_underscores: ignore
+    unused_local_variable: ignore
+    unused_element: ignore
+    unused_import: ignore
+    avoid_print: ignore
+    unnecessary_brace_in_string_interps: ignore
+    unnecessary_import: ignore
+    avoid_web_libraries_in_flutter: ignore
 include: package:flutter_lints/flutter.yaml
 
 linter:

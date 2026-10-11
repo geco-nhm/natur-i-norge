@@ -291,3 +291,5 @@ firebase/
 !assets/nin_database.sqlite
 !assets/gad_na_tb01.sqlite
 !assets/images.zip
+
+secrets/
