@@ -3,6 +3,7 @@
 
 require "shellwords"
 require "securerandom"
+require "tmpdir"
 
 default_platform(:android)
 
@@ -209,28 +210,55 @@ platform :ios do
     keychain_name = "ci_signing"
     keychain_path = File.expand_path("~/Library/Keychains/#{keychain_name}-db")
     keychain_password = SecureRandom.hex(16)
-    original_keychains = sh("security list-keychains -d user").shellsplit rescue []
+    login_keychain = [
+      File.expand_path("~/Library/Keychains/login.keychain-db"),
+      File.expand_path("~/Library/Keychains/login.keychain")
+    ].find { |path| File.exist?(path) }
 
-    delete_keychain(name: keychain_name) if File.exist?(keychain_path)
+    # Remove leftover ephemeral keychain from prior failed runs, then heal the
+    # user search list so login remains available (previous cleanups sometimes
+    # left only ci_signing, which breaks WWDR install / default-keychain lookup).
+    begin
+      delete_keychain(name: keychain_name) if File.exist?(keychain_path)
+    rescue => e
+      UI.important("Prior ephemeral keychain cleanup notice: #{e.message}")
+    end
+    if login_keychain
+      sh("security list-keychains -d user -s #{login_keychain.shellescape}")
+      sh("security default-keychain -s #{login_keychain.shellescape}")
+    end
 
     begin
       UI.message("🔐 Creating ephemeral build keychain (#{keychain_name})...")
       create_keychain(
         name: keychain_name,
         password: keychain_password,
-        default_keychain: true,
-        add_to_search_list: false,
+        default_keychain: false,
+        add_to_search_list: true,
         unlock: true,
         timeout: 3600
       )
 
-      UI.message("🔓 Unlocking build keychain and isolating search list...")
+      UI.message("🔓 Unlocking build keychain and configuring search list...")
       unlock_keychain(
         path: keychain_path,
         password: keychain_password,
-        add_to_search_list: :replace,
+        add_to_search_list: true,
         set_default: true
       )
+      search_list = [keychain_path]
+      search_list << login_keychain if login_keychain
+      sh("security list-keychains -d user -s #{search_list.shelljoin}")
+      sh("security default-keychain -s #{keychain_path.shellescape}")
+
+      # Pre-install Apple WWDR intermediates so sigh does not fail when the
+      # host login keychain is missing them or the default keychain was unset.
+      UI.message("📜 Installing Apple WWDR certificates into build keychain...")
+      %w[AppleWWDRCAG3.cer AppleWWDRCAG6.cer].each do |cert_name|
+        tmp = File.join(Dir.tmpdir, cert_name)
+        sh("curl -fsSL -o #{tmp.shellescape} https://www.apple.com/certificateauthority/#{cert_name}")
+        sh("security import #{tmp.shellescape} -k #{keychain_path.shellescape} -T /usr/bin/codesign -T /usr/bin/security >/dev/null || true")
+      end
 
       UI.message("📥 Importing Distribution .p12 into ephemeral keychain...")
       import_certificate(
@@ -285,7 +313,11 @@ platform :ios do
       rescue => e
         UI.important("Ephemeral keychain cleanup notice: #{e.message}")
       end
-      sh("security list-keychains -d user -s #{original_keychains.shelljoin}") rescue nil unless original_keychains.empty?
+      # Always restore login keychain — never re-point search list at deleted ci_signing.
+      if login_keychain
+        sh("security list-keychains -d user -s #{login_keychain.shellescape}") rescue nil
+        sh("security default-keychain -s #{login_keychain.shellescape}") rescue nil
+      end
     end
 
     ipa_path = File.join(ROOT_DIR, "build/ios/ipa/naturinorge_guide.ipa")
