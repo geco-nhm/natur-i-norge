@@ -280,8 +280,12 @@ platform :ios do
       build_app(gym_params)
     ensure
       UI.message("🧹 Restoring host keychains and deleting ephemeral build keychain...")
-      delete_keychain(name: keychain_name) if File.exist?(keychain_path)
-      sh("security list-keychains -d user -s #{original_keychains.shelljoin}") unless original_keychains.empty?
+      begin
+        delete_keychain(name: keychain_name) if File.exist?(keychain_path)
+      rescue => e
+        UI.important("Ephemeral keychain cleanup notice: #{e.message}")
+      end
+      sh("security list-keychains -d user -s #{original_keychains.shelljoin}") rescue nil unless original_keychains.empty?
     end
 
     ipa_path = File.join(ROOT_DIR, "build/ios/ipa/naturinorge_guide.ipa")
