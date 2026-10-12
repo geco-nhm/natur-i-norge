@@ -266,12 +266,16 @@ platform :ios do
         export_options: {
           method: export_method,
           signingStyle: "manual",
+          signingCertificate: "Apple Distribution",
           provisioningProfiles: {
             app_id => profile_name
           }
         }
       }
       xcargs = []
+      xcargs << "CODE_SIGN_STYLE=Manual"
+      xcargs << "CODE_SIGN_IDENTITY=Apple\\ Distribution"
+      xcargs << "DEVELOPMENT_TEAM=#{team_id.shellescape}" if team_id
       xcargs << "PROVISIONING_PROFILE_SPECIFIER=#{profile_name.shellescape}"
       xcargs << "FLUTTER_BUILD_NAME=#{ENV['BUILD_NAME']}" if ENV['BUILD_NAME']
       xcargs << "FLUTTER_BUILD_NUMBER=#{ENV['BUILD_NUMBER']}" if ENV['BUILD_NUMBER']
