@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:convert';
 import '../models/nin_database.dart';
+import '../models/variable_steps.dart';
 import '../providers/database_provider.dart';
 import '../navigation/app_routes.dart';
 import '../widgets/expandable_markdown.dart';
@@ -186,47 +187,103 @@ class VariableDetailScreen extends ConsumerWidget {
   Widget _buildStepsList(BuildContext context, String stepsJson) {
     final colorScheme = Theme.of(context).colorScheme;
     try {
-      final List<dynamic> steps = json.decode(stepsJson);
+      final scales = parseVariableSteps(json.decode(stepsJson));
+      if (scales.isEmpty) {
+        return Text(
+          'Ingen trinn tilgjengelig.',
+          style: TextStyle(color: colorScheme.onSurface.withOpacity(0.5)),
+        );
+      }
+
+      final showScaleHeaders = scales.length > 1 ||
+          (scales.first.maaleskalaNavn != null &&
+              scales.first.maaleskalaNavn!.isNotEmpty);
+
       return Column(
-        children: steps.map((s) => Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainer,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 32,
-                height: 32,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: colorScheme.primary,
-                  shape: BoxShape.circle,
-                ),
-                child: Text(
-                  s['verdi']?.toString() ?? '?',
-                  style: TextStyle(color: colorScheme.onPrimary, fontWeight: FontWeight.bold, fontSize: 12),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (var i = 0; i < scales.length; i++) ...[
+            if (i > 0) const SizedBox(height: 16),
+            if (showScaleHeaders) ...[
+              Text(
+                scales[i].displayTitle,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  color: colorScheme.onSurface,
                 ),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(s['navn'] ?? 'Ukjent trinn', style: const TextStyle(fontWeight: FontWeight.w500)),
-                    if (s['kode'] != null)
-                      Text(s['kode'], style: TextStyle(color: colorScheme.onSurface.withOpacity(0.5), fontSize: 10)),
-                  ],
+              if (scales[i].displaySubtitle != null) ...[
+                const SizedBox(height: 2),
+                Text(
+                  scales[i].displaySubtitle!,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: colorScheme.onSurface.withOpacity(0.6),
+                  ),
                 ),
-              ),
+              ],
+              const SizedBox(height: 8),
             ],
-          ),
-        )).toList(),
+            ...scales[i].trinn.map((s) => _buildStepTile(context, s)),
+          ],
+        ],
       );
     } catch (e) {
       return Text("Kunne ikke laste trinn.", style: TextStyle(color: colorScheme.onSurface.withOpacity(0.5)));
     }
+  }
+
+  Widget _buildStepTile(BuildContext context, VariableStep step) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: colorScheme.primary,
+              shape: BoxShape.circle,
+            ),
+            child: Text(
+              step.verdi ?? '?',
+              style: TextStyle(
+                color: colorScheme.onPrimary,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  step.navn ?? 'Ukjent trinn',
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                ),
+                if (step.kode != null)
+                  Text(
+                    step.kode!,
+                    style: TextStyle(
+                      color: colorScheme.onSurface.withOpacity(0.5),
+                      fontSize: 10,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
