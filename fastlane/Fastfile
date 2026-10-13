@@ -210,22 +210,20 @@ platform :ios do
     keychain_name = "ci_signing"
     keychain_path = File.expand_path("~/Library/Keychains/#{keychain_name}-db")
     keychain_password = SecureRandom.hex(16)
-    login_keychain = [
-      File.expand_path("~/Library/Keychains/login.keychain-db"),
-      File.expand_path("~/Library/Keychains/login.keychain")
-    ].find { |path| File.exist?(path) }
 
-    # Remove leftover ephemeral keychain from prior failed runs, then heal the
-    # user search list so login remains available (previous cleanups sometimes
-    # left only ci_signing, which breaks WWDR install / default-keychain lookup).
+    # Snapshot host user search list for restore after the job (host hygiene only).
+    # Signing uses Vault → ephemeral ci_signing only — never login.keychain identities.
+    original_keychains = sh("security list-keychains -d user").shellsplit rescue []
+    if original_keychains.any? { |kc| kc.include?(keychain_name) } && !File.exist?(keychain_path)
+      UI.important("Removing stale #{keychain_name} entry from user keychain search list...")
+      original_keychains.reject! { |kc| kc.include?(keychain_name) }
+      sh("security list-keychains -d user -s #{original_keychains.shelljoin}") unless original_keychains.empty?
+    end
+
     begin
       delete_keychain(name: keychain_name) if File.exist?(keychain_path)
     rescue => e
       UI.important("Prior ephemeral keychain cleanup notice: #{e.message}")
-    end
-    if login_keychain
-      sh("security list-keychains -d user -s #{login_keychain.shellescape}")
-      sh("security default-keychain -s #{login_keychain.shellescape}")
     end
 
     begin
@@ -234,7 +232,7 @@ platform :ios do
         name: keychain_name,
         password: keychain_password,
         default_keychain: false,
-        add_to_search_list: true,
+        add_to_search_list: false,
         unlock: true,
         timeout: 3600
       )
@@ -243,18 +241,11 @@ platform :ios do
       unlock_keychain(
         path: keychain_path,
         password: keychain_password,
-        add_to_search_list: true,
-        set_default: true
+        add_to_search_list: false,
+        set_default: false
       )
-      # Temporarily keep login available while importing certs (heal path);
-      # isolate to ci_signing only before codesign/gym to avoid headless ACL stalls.
-      import_search_list = [keychain_path]
-      import_search_list << login_keychain if login_keychain
-      sh("security list-keychains -d user -s #{import_search_list.shelljoin}")
-      sh("security default-keychain -s #{keychain_path.shellescape}")
 
-      # Pre-install Apple WWDR intermediates so sigh does not fail when the
-      # host login keychain is missing them or the default keychain was unset.
+      # WWDR + Vault p12 land only in ci_signing (no machine login keychain dependency).
       UI.message("📜 Installing Apple WWDR certificates into build keychain...")
       %w[AppleWWDRCAG3.cer AppleWWDRCAG6.cer].each do |cert_name|
         tmp = File.join(Dir.tmpdir, cert_name)
@@ -278,8 +269,7 @@ platform :ios do
         "-k #{keychain_password.shellescape} #{keychain_path.shellescape}"
       )
 
-      # Isolate search list to ci_signing only for provisioning + gym/codesign.
-      # Leaving login in the search list caused a headless hang during archive.
+      # Isolate search list to ci_signing only for sigh/gym (Manual + Vault-only).
       UI.message("🔐 Isolating user keychain search list to #{keychain_name} for codesign...")
       sh("security list-keychains -d user -s #{keychain_path.shellescape}")
       sh("security default-keychain -s #{keychain_path.shellescape}")
@@ -293,6 +283,19 @@ platform :ios do
       )
       profile_name = Actions.lane_context[SharedValues::SIGH_NAME] || "#{app_id} AppStore"
       UI.message("  Using Provisioning Profile: #{profile_name}")
+
+      # Apply Manual signing + sigh profile to Runner only. Global xcargs for
+      # PROVISIONING_PROFILE_SPECIFIER break CocoaPods/SPM targets that need Automatic.
+      UI.message("✍️ Updating Runner target code signing to match downloaded profile...")
+      update_code_signing_settings(
+        path: File.join(ROOT_DIR, "ios/Runner.xcodeproj"),
+        use_automatic_signing: false,
+        team_id: team_id,
+        targets: ["Runner"],
+        code_sign_identity: "Apple Distribution",
+        profile_name: profile_name,
+        build_configurations: ["Release"]
+      )
 
       UI.message("🏗 Compiling Flutter iOS bundle...")
       flutter("build ios --release --no-codesign #{args.join(' ')}".strip)
@@ -316,14 +319,7 @@ platform :ios do
         }
       }
       xcargs = []
-      # Override project.pbxproj specifier ("… AppStore") with the force-created
-      # sigh profile name ("… AppStore <timestamp>") so archive uses a profile that
-      # includes the Distribution cert imported into ci_signing.
-      xcargs << "CODE_SIGN_STYLE=Manual"
-      xcargs << "CODE_SIGN_IDENTITY=Apple\\ Distribution"
-      xcargs << "DEVELOPMENT_TEAM=#{team_id.shellescape}" if team_id
-      xcargs << "PROVISIONING_PROFILE_SPECIFIER=#{profile_name.shellescape}"
-      xcargs << "OTHER_CODE_SIGN_FLAGS=--keychain\\ #{keychain_path.shellescape}"
+      xcargs << "OTHER_CODE_SIGN_FLAGS=\"--keychain #{keychain_path.shellescape}\""
       xcargs << "FLUTTER_BUILD_NAME=#{ENV['BUILD_NAME']}" if ENV['BUILD_NAME']
       xcargs << "FLUTTER_BUILD_NUMBER=#{ENV['BUILD_NUMBER']}" if ENV['BUILD_NUMBER']
       gym_params[:xcargs] = xcargs.join(" ") unless xcargs.empty?
@@ -336,11 +332,8 @@ platform :ios do
       rescue => e
         UI.important("Ephemeral keychain cleanup notice: #{e.message}")
       end
-      # Always restore login keychain — never re-point search list at deleted ci_signing.
-      if login_keychain
-        sh("security list-keychains -d user -s #{login_keychain.shellescape}") rescue nil
-        sh("security default-keychain -s #{login_keychain.shellescape}") rescue nil
-      end
+      # Restore the original search-list snapshot — never hardcode login.keychain.
+      sh("security list-keychains -d user -s #{original_keychains.shelljoin}") rescue nil unless original_keychains.empty?
     end
 
     ipa_path = File.join(ROOT_DIR, "build/ios/ipa/naturinorge_guide.ipa")
