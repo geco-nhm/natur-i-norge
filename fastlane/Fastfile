@@ -66,6 +66,19 @@ def google_play_key_path
   key_path
 end
 
+# Remove a named keychain via Fastlane, then force-delete leftover files securityd may leave behind.
+def scrub_keychain_residue!(name, keychains_dir = File.expand_path("~/Library/Keychains"))
+  begin
+    delete_keychain(name: name)
+  rescue => e
+    UI.important("Prior ephemeral keychain cleanup notice (#{name}): #{e.message}")
+  end
+  [name, "#{name}-db"].each do |fname|
+    fpath = File.join(keychains_dir, fname)
+    FileUtils.rm_f(fpath) if File.exist?(fpath)
+  end
+end
+
 # -----------------------------------------------------------------------------
 # Android Platform
 # -----------------------------------------------------------------------------
@@ -212,24 +225,23 @@ platform :ios do
     UI.user_error!("Distribution certificate (.p12) missing at #{p12_path}!") unless File.exist?(p12_path)
     UI.user_error!("P12_PASSWORD environment variable missing!") unless p12_password && !p12_password.empty?
 
-    keychain_name = "ci_signing"
+    # Unique per-build name avoids exit 162 collisions with leftover/concurrent ci_signing.
+    build_id = (ENV["BUILD_NUMBER"].to_s.empty? ? SecureRandom.hex(4) : ENV["BUILD_NUMBER"])
+    keychain_name = "ci_signing_#{build_id}_#{SecureRandom.hex(3)}"
     keychain_path = File.expand_path("~/Library/Keychains/#{keychain_name}-db")
     keychain_password = SecureRandom.hex(16)
+    keychains_dir = File.expand_path("~/Library/Keychains")
 
     # Snapshot host user search list for restore after the job (host hygiene only).
-    # Signing uses Vault → ephemeral ci_signing only — never login.keychain identities.
+    # Signing uses Vault → ephemeral keychain only — never login.keychain identities.
     original_keychains = sh("security list-keychains -d user").shellsplit rescue []
-    if original_keychains.any? { |kc| kc.include?(keychain_name) } && !File.exist?(keychain_path)
-      UI.important("Removing stale #{keychain_name} entry from user keychain search list...")
-      original_keychains.reject! { |kc| kc.include?(keychain_name) }
-      sh("security list-keychains -d user -s #{original_keychains.shelljoin}") unless original_keychains.empty?
-    end
+    original_keychains.reject! { |kc| kc.include?("ci_signing") }
+    sh("security list-keychains -d user -s #{original_keychains.shelljoin}") unless original_keychains.empty?
 
-    begin
-      delete_keychain(name: keychain_name) if File.exist?(keychain_path)
-    rescue => e
-      UI.important("Prior ephemeral keychain cleanup notice: #{e.message}")
-    end
+    # Scrub legacy fixed-name ci_signing and any ghost files from prior failed runs.
+    # Do not delete other ci_signing_<build>_* keychains — concurrent jobs may own them.
+    scrub_keychain_residue!("ci_signing", keychains_dir)
+    scrub_keychain_residue!(keychain_name, keychains_dir)
 
     begin
       UI.message("🔐 Creating ephemeral build keychain (#{keychain_name})...")
@@ -333,9 +345,13 @@ platform :ios do
     ensure
       UI.message("🧹 Restoring host keychains and deleting ephemeral build keychain...")
       begin
-        delete_keychain(name: keychain_name) if File.exist?(keychain_path)
+        delete_keychain(name: keychain_name)
       rescue => e
         UI.important("Ephemeral keychain cleanup notice: #{e.message}")
+      end
+      [keychain_name, "#{keychain_name}-db"].each do |fname|
+        fpath = File.join(keychains_dir, fname)
+        FileUtils.rm_f(fpath) if File.exist?(fpath)
       end
       # Restore the original search-list snapshot — never hardcode login.keychain.
       sh("security list-keychains -d user -s #{original_keychains.shelljoin}") rescue nil unless original_keychains.empty?
