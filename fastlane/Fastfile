@@ -239,16 +239,18 @@ platform :ios do
         timeout: 3600
       )
 
-      UI.message("🔓 Unlocking build keychain and configuring search list...")
+      UI.message("🔓 Unlocking build keychain...")
       unlock_keychain(
         path: keychain_path,
         password: keychain_password,
         add_to_search_list: true,
         set_default: true
       )
-      search_list = [keychain_path]
-      search_list << login_keychain if login_keychain
-      sh("security list-keychains -d user -s #{search_list.shelljoin}")
+      # Temporarily keep login available while importing certs (heal path);
+      # isolate to ci_signing only before codesign/gym to avoid headless ACL stalls.
+      import_search_list = [keychain_path]
+      import_search_list << login_keychain if login_keychain
+      sh("security list-keychains -d user -s #{import_search_list.shelljoin}")
       sh("security default-keychain -s #{keychain_path.shellescape}")
 
       # Pre-install Apple WWDR intermediates so sigh does not fail when the
@@ -268,6 +270,19 @@ platform :ios do
         keychain_path: keychain_path,
         keychain_password: keychain_password
       )
+
+      # Allow codesign/security to use the imported private key without UI prompt.
+      UI.message("🔑 Setting key partition list for non-interactive codesign...")
+      sh(
+        "security set-key-partition-list -S apple-tool:,apple:,codesign: -s " \
+        "-k #{keychain_password.shellescape} #{keychain_path.shellescape}"
+      )
+
+      # Isolate search list to ci_signing only for provisioning + gym/codesign.
+      # Leaving login in the search list caused a headless hang during archive.
+      UI.message("🔐 Isolating user keychain search list to #{keychain_name} for codesign...")
+      sh("security list-keychains -d user -s #{keychain_path.shellescape}")
+      sh("security default-keychain -s #{keychain_path.shellescape}")
 
       UI.message("📱 Ensuring App Store Provisioning Profile is installed and up-to-date...")
       get_provisioning_profile(
