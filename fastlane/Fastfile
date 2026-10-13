@@ -93,6 +93,8 @@ platform :android do
 
   desc "Build Android release artifacts (both AAB and APK)"
   lane :build do |options|
+    FileUtils.rm_rf(Dir.glob(File.join(ROOT_DIR, "build/app/outputs/bundle/*")))
+    FileUtils.rm_rf(Dir.glob(File.join(ROOT_DIR, "build/app/outputs/flutter-apk/*")))
     build_bundle(options)
     build_apk(options)
   end
@@ -103,13 +105,14 @@ platform :android do
 
     key_path = google_play_key_path
     track = options[:track] || "internal"
-    release_status = options[:release_status] || ENV["PLAY_RELEASE_STATUS"] || "draft"
+    release_status = options[:release_status] || ENV["PLAY_RELEASE_STATUS"] || "completed"
     has_metadata = Dir.exist?(File.join(ROOT_DIR, "fastlane/metadata/android"))
     aab_path = Dir[File.join(ROOT_DIR, "build/app/outputs/bundle/**/*.aab")].first
     UI.user_error!("No AAB artifact found in build/app/outputs/bundle/ to upload to Google Play!") unless aab_path && File.exist?(aab_path)
 
-    UI.message("🚀 Uploading AAB and Git metadata to Google Play track: #{track} (status: #{release_status})...")
-    upload_to_play_store(
+    version_name = ENV["BUILD_NAME"]
+    UI.message("🚀 Uploading AAB and Git metadata to Google Play track: #{track} (status: #{release_status}, version: #{version_name})...")
+    upload_params = {
       track: track,
       json_key: key_path,
       aab: aab_path,
@@ -118,7 +121,9 @@ platform :android do
       skip_upload_images: !has_metadata,
       skip_upload_screenshots: !has_metadata,
       skip_upload_changelogs: false
-    )
+    }
+    upload_params[:version_name] = version_name if version_name && !version_name.empty?
+    upload_to_play_store(upload_params)
   end
 
   desc "Build and deploy Android release to Google Play Production track"

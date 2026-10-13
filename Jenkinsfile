@@ -1,4 +1,4 @@
-@Library('jenkins-shared-lib') _
+@Library('jenkins-shared-lib@main') _
 
 flutterPipeline(
     agentLabel: 'mbp-m2p',
