@@ -3,6 +3,7 @@
 
 require "shellwords"
 require "securerandom"
+require "tmpdir"
 
 default_platform(:android)
 
@@ -209,28 +210,48 @@ platform :ios do
     keychain_name = "ci_signing"
     keychain_path = File.expand_path("~/Library/Keychains/#{keychain_name}-db")
     keychain_password = SecureRandom.hex(16)
-    original_keychains = sh("security list-keychains -d user").shellsplit rescue []
 
-    delete_keychain(name: keychain_name) if File.exist?(keychain_path)
+    # Snapshot host user search list for restore after the job (host hygiene only).
+    # Signing uses Vault → ephemeral ci_signing only — never login.keychain identities.
+    original_keychains = sh("security list-keychains -d user").shellsplit rescue []
+    if original_keychains.any? { |kc| kc.include?(keychain_name) } && !File.exist?(keychain_path)
+      UI.important("Removing stale #{keychain_name} entry from user keychain search list...")
+      original_keychains.reject! { |kc| kc.include?(keychain_name) }
+      sh("security list-keychains -d user -s #{original_keychains.shelljoin}") unless original_keychains.empty?
+    end
+
+    begin
+      delete_keychain(name: keychain_name) if File.exist?(keychain_path)
+    rescue => e
+      UI.important("Prior ephemeral keychain cleanup notice: #{e.message}")
+    end
 
     begin
       UI.message("🔐 Creating ephemeral build keychain (#{keychain_name})...")
       create_keychain(
         name: keychain_name,
         password: keychain_password,
-        default_keychain: true,
+        default_keychain: false,
         add_to_search_list: false,
         unlock: true,
         timeout: 3600
       )
 
-      UI.message("🔓 Unlocking build keychain and isolating search list...")
+      UI.message("🔓 Unlocking build keychain...")
       unlock_keychain(
         path: keychain_path,
         password: keychain_password,
-        add_to_search_list: :replace,
-        set_default: true
+        add_to_search_list: false,
+        set_default: false
       )
+
+      # WWDR + Vault p12 land only in ci_signing (no machine login keychain dependency).
+      UI.message("📜 Installing Apple WWDR certificates into build keychain...")
+      %w[AppleWWDRCAG3.cer AppleWWDRCAG6.cer].each do |cert_name|
+        tmp = File.join(Dir.tmpdir, cert_name)
+        sh("curl -fsSL -o #{tmp.shellescape} https://www.apple.com/certificateauthority/#{cert_name}")
+        sh("security import #{tmp.shellescape} -k #{keychain_path.shellescape} -T /usr/bin/codesign -T /usr/bin/security >/dev/null || true")
+      end
 
       UI.message("📥 Importing Distribution .p12 into ephemeral keychain...")
       import_certificate(
@@ -241,6 +262,18 @@ platform :ios do
         keychain_password: keychain_password
       )
 
+      # Allow codesign/security to use the imported private key without UI prompt.
+      UI.message("🔑 Setting key partition list for non-interactive codesign...")
+      sh(
+        "security set-key-partition-list -S apple-tool:,apple:,codesign: -s " \
+        "-k #{keychain_password.shellescape} #{keychain_path.shellescape}"
+      )
+
+      # Isolate search list to ci_signing only for sigh/gym (Manual + Vault-only).
+      UI.message("🔐 Isolating user keychain search list to #{keychain_name} for codesign...")
+      sh("security list-keychains -d user -s #{keychain_path.shellescape}")
+      sh("security default-keychain -s #{keychain_path.shellescape}")
+
       UI.message("📱 Ensuring App Store Provisioning Profile is installed and up-to-date...")
       get_provisioning_profile(
         api_key: api_key,
@@ -250,6 +283,19 @@ platform :ios do
       )
       profile_name = Actions.lane_context[SharedValues::SIGH_NAME] || "#{app_id} AppStore"
       UI.message("  Using Provisioning Profile: #{profile_name}")
+
+      # Apply Manual signing + sigh profile to Runner only. Global xcargs for
+      # PROVISIONING_PROFILE_SPECIFIER break CocoaPods/SPM targets that need Automatic.
+      UI.message("✍️ Updating Runner target code signing to match downloaded profile...")
+      update_code_signing_settings(
+        path: File.join(ROOT_DIR, "ios/Runner.xcodeproj"),
+        use_automatic_signing: false,
+        team_id: team_id,
+        targets: ["Runner"],
+        code_sign_identity: "Apple Distribution",
+        profile_name: profile_name,
+        build_configurations: ["Release"]
+      )
 
       UI.message("🏗 Compiling Flutter iOS bundle...")
       flutter("build ios --release --no-codesign #{args.join(' ')}".strip)
@@ -273,6 +319,7 @@ platform :ios do
         }
       }
       xcargs = []
+      xcargs << "OTHER_CODE_SIGN_FLAGS=\"--keychain #{keychain_path.shellescape}\""
       xcargs << "FLUTTER_BUILD_NAME=#{ENV['BUILD_NAME']}" if ENV['BUILD_NAME']
       xcargs << "FLUTTER_BUILD_NUMBER=#{ENV['BUILD_NUMBER']}" if ENV['BUILD_NUMBER']
       gym_params[:xcargs] = xcargs.join(" ") unless xcargs.empty?
@@ -285,6 +332,7 @@ platform :ios do
       rescue => e
         UI.important("Ephemeral keychain cleanup notice: #{e.message}")
       end
+      # Restore the original search-list snapshot — never hardcode login.keychain.
       sh("security list-keychains -d user -s #{original_keychains.shelljoin}") rescue nil unless original_keychains.empty?
     end
 
