@@ -19,6 +19,7 @@ import '../widgets/type_image_viewer.dart';
 import '../nin_type_colors.dart';
 import '../search/nin_type_navigation.dart';
 import '../services/nin_api_source.dart';
+import '../utils/artsdatabanken_urls.dart';
 import '../widgets/matrix_health_sheet.dart';
 import '../widgets/nin_search_sheet.dart';
 
@@ -493,7 +494,7 @@ class _TypesScreenState extends ConsumerState<TypesScreen> {
             builder: (context, ref, _) {
               final favorites = ref.watch(favoritesProvider).value ?? [];
               final isFavorite = favorites.contains(type.id);
-              final hasArtsdatabankenLink = type.langkode != null;
+              final artsdatabankenUrl = ArtsdatabankenUrls.typeUrl(type.langkode);
               final typeApiUrl = NinApiSourceService.typeApiUrl(type);
 
               return PopupMenuButton<_TypeDetailMenuAction>(
@@ -502,8 +503,9 @@ class _TypesScreenState extends ConsumerState<TypesScreen> {
                 onSelected: (action) async {
                   switch (action) {
                     case _TypeDetailMenuAction.openArtsdatabanken:
+                      if (artsdatabankenUrl == null) return;
                       await launchUrl(
-                        Uri.parse('https://artsdatabanken.no/naturtyper/natur-i-norge/${type.langkode}'),
+                        artsdatabankenUrl,
                         mode: LaunchMode.externalApplication,
                       );
                     case _TypeDetailMenuAction.toggleFavorite:
@@ -525,7 +527,7 @@ class _TypesScreenState extends ConsumerState<TypesScreen> {
                   }
                 },
                 itemBuilder: (context) => [
-                  if (hasArtsdatabankenLink)
+                  if (artsdatabankenUrl != null)
                     const PopupMenuItem(
                       value: _TypeDetailMenuAction.openArtsdatabanken,
                       child: Row(

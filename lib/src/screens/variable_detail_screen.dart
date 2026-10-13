@@ -6,6 +6,7 @@ import '../models/nin_database.dart';
 import '../models/variable_steps.dart';
 import '../providers/database_provider.dart';
 import '../navigation/app_routes.dart';
+import '../utils/artsdatabanken_urls.dart';
 import '../widgets/expandable_markdown.dart';
 
 class VariableDetailScreen extends ConsumerWidget {
@@ -29,17 +30,21 @@ class VariableDetailScreen extends ConsumerWidget {
         }
 
         final subVariablesAsync = ref.watch(subVariablesProvider(varData.id));
+        final artsdatabankenUrl = ArtsdatabankenUrls.variableUrl(
+          langkode: varData.langkode,
+          parentId: varData.parentId,
+        );
 
         return Scaffold(
           appBar: AppBar(
             title: Text(varData.navn, maxLines: null),
             actions: [
-              if (varData.langkode != null)
+              if (artsdatabankenUrl != null)
                 IconButton(
                   icon: const Icon(Icons.open_in_browser),
                   tooltip: 'View on Artsdatabanken',
                   onPressed: () => launchUrl(
-                    Uri.parse('https://artsdatabanken.no/naturtyper/natur-i-norge/${varData.langkode}'),
+                    artsdatabankenUrl,
                     mode: LaunchMode.externalApplication,
                   ),
                 ),
