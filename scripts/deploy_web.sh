@@ -146,10 +146,22 @@ GIT_INDEX_FILE="$TEMP_INDEX" git --work-tree="${STAGING_DIR}" add -A
 TREE=$(GIT_INDEX_FILE="$TEMP_INDEX" git write-tree)
 rm -f "$TEMP_INDEX"
 
+# Push target and optional CI credentials
+PUSH_REMOTE="origin"
+ORIGIN_URL=$(git remote get-url origin 2>/dev/null || echo "")
+if [ -n "$GIT_TOKEN" ]; then
+  GIT_AUTH_USER="${GIT_USER:-oauth2}"
+  if [[ "$ORIGIN_URL" == https://* ]]; then
+    PUSH_REMOTE="https://${GIT_AUTH_USER}:${GIT_TOKEN}@${ORIGIN_URL#https://}"
+  elif [[ "$ORIGIN_URL" == http://* ]]; then
+    PUSH_REMOTE="http://${GIT_AUTH_USER}:${GIT_TOKEN}@${ORIGIN_URL#http://}"
+  fi
+fi
+
 # Determine parent commit on target branch if it exists on origin or locally
 PARENT_COMMIT=""
-if git ls-remote --exit-code --heads origin "${TARGET_BRANCH}" >/dev/null 2>&1; then
-  git fetch origin "+${TARGET_BRANCH}:${TARGET_BRANCH}" 2>/dev/null || true
+if git ls-remote --exit-code --heads "$PUSH_REMOTE" "${TARGET_BRANCH}" >/dev/null 2>&1; then
+  git fetch "$PUSH_REMOTE" "+${TARGET_BRANCH}:${TARGET_BRANCH}" 2>/dev/null || true
   PARENT_COMMIT=$(git rev-parse --verify "refs/heads/${TARGET_BRANCH}" 2>/dev/null || true)
 elif git show-ref --verify --quiet "refs/heads/${TARGET_BRANCH}"; then
   PARENT_COMMIT=$(git rev-parse --verify "refs/heads/${TARGET_BRANCH}" 2>/dev/null || true)
@@ -165,7 +177,7 @@ fi
 git update-ref "refs/heads/${TARGET_BRANCH}" "$NEW_COMMIT"
 
 echo "📤 Pushing branch '${TARGET_BRANCH}' to origin..."
-git push origin "${TARGET_BRANCH}:${TARGET_BRANCH}"
+git push "$PUSH_REMOTE" "${TARGET_BRANCH}:${TARGET_BRANCH}"
 
 echo "🎉 Deployment to ${TARGET_BRANCH} complete!"
 echo "   Landing Page: https://geco-nhm.github.io/${REPO_NAME}/"
