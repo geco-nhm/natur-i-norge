@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personvern og vilkår - Natur i Norge guide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="bg-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <nav class="site-nav" aria-label="Hovedmeny">
+        <div class="container site-nav-inner">
+            <a href="index.html" class="site-nav-brand">
+                <img src="logo.png" alt="" width="28" height="28">
+                <span>Natur i Norge</span>
+            </a>
+            <div class="site-nav-actions">
+                <a href="https://github.com/geco-nhm/natur-i-norge/issues" class="site-nav-link">Support</a>
+                <a href="privacy_policy.html" class="site-nav-link site-nav-link-muted">Personvern</a>
+                <a href="https://github.com/geco-nhm/natur-i-norge" class="github-pill" target="_blank" rel="noopener noreferrer">
+                    <svg class="github-pill-icon" aria-hidden="true" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.18.82.63-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.51-1.04 2.18-.82 2.18-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+                    <span>GitHub</span>
+                    <span class="github-pill-count" id="github-stars" aria-label="Antall stjerner">—</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container policy-content">
+        <a href="index.html" class="back-link">← Tilbake til forsiden</a>
+        
+        <div class="glass-card">
+            <h1>Personvernerklæring</h1>
+            <p>Sist oppdatert: 13. mai 2026</p>
+
+            <h2>1. Introduksjon</h2>
+            <p>Natur i Norge guide (heretter "Appen") er utviklet av Naturhistorisk museum ved Universitetet i Oslo. Vi tar ditt personvern på alvor.</p>
+
+            <h2>2. Datainnsamling</h2>
+            <p>Appen samler inn følgende data:</p>
+            <ul>
+                <li><strong>Posisjonsdata:</strong> Brukes for å vise din posisjon i kartet og registrere nøyaktig sted for naturtypeobservasjoner.</li>
+                <li><strong>Bilder:</strong> Brukes kun hvis du velger å ta bilde av en naturtype for dokumentasjon.</li>
+                <li><strong>Brukerkonto:</strong> Hvis du velger å synkronisere dine observasjoner, lagres brukernavn og e-post i vår sikre database.</li>
+            </ul>
+
+            <h2>3. Bruk og lagring av data</h2>
+            <p>Hvis du velger å benytte deg av Appens sikkerhetskopiering (backup), vil dine observasjonsdata lagres i skyen. Publisering til <strong>Zenodo</strong> er planlagt (kommer snart) for langsiktig bevaring og bidrag til åpen vitenskap (Open Science).</p>
+            <p>Data som publiseres vil være fritt tilgjengelige for bruk uten restriksjoner. Bilder vurderes av både mennesker og AI før publisering, for å sikre at de oppfyller kravene for publisering: naturmotiver, ingen personopplysninger og intet uvedkommende innhold.</p>
+
+            <h1 id="terms" style="margin-top: 60px;">Brukervilkår</h1>
+            <h2>1. Bruk av tjenesten</h2>
+            <p>Appen leveres "som den er". Naturhistorisk museum kan ikke holdes ansvarlig for eventuelle feil i kartdata eller naturtypeidentifisering.</p>
+
+            <h2>2. Ansvar</h2>
+            <p>Brukeren er selv ansvarlig for egen sikkerhet ved ferdsel i naturen. Appen skal ikke brukes som eneste kilde til navigasjon i krevende terreng.</p>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p class="copyright">© 2026 Naturhistorisk museum, Universitetet i Oslo (UiO)</p>
+        </div>
+    </footer>
+
+    <script>
+        fetch('https://api.github.com/repos/geco-nhm/natur-i-norge')
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (data) {
+                if (data && data.stargazers_count != null) {
+                    var el = document.getElementById('github-stars');
+                    if (el) el.textContent = data.stargazers_count.toLocaleString('nb-NO');
+                }
+            })
+            .catch(function () {});
+    </script>
+</body>
+</html>

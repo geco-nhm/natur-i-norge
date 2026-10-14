@@ -1,0 +1,13 @@
+{
+    "app_name": "NiN mapper",
+    "toggle_theme": "Toggle theme",
+    "structure": "NiN structure",
+    "T4_helper": "T4 helper",
+    "read_mode": "Read more",
+    "show_less": "Show less",
+    "<name>": "Name",
+    "<description>": "Description",
+    "<ecological_characteristics>": "Ecological characteristics",
+    "<physiognomy>": "Physiognomy",
+    "<terrain_and_aerial_photo_characteristics>": "Terrain and aerial photo characteristics"
+}

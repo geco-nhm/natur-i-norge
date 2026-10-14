@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Natur i Norge guide - Din guide til norsk natur</title>
+    <meta name="description" content="Natur i Norge (NiN) er en app som hjelper deg å identifisere og lære om naturtyper i Norge. Utviklet av Naturhistorisk museum.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="bg-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <nav class="site-nav" aria-label="Hovedmeny">
+        <div class="container site-nav-inner">
+            <a href="./" class="site-nav-brand">
+                <img src="logo.png" alt="" width="28" height="28">
+                <span>Natur i Norge</span>
+            </a>
+            <div class="site-nav-actions">
+                <a href="https://github.com/geco-nhm/natur-i-norge/issues" class="site-nav-link">Support</a>
+                <a href="privacy_policy.html" class="site-nav-link site-nav-link-muted">Personvern</a>
+                <a href="https://github.com/geco-nhm/natur-i-norge" class="github-pill" target="_blank" rel="noopener noreferrer">
+                    <svg class="github-pill-icon" aria-hidden="true" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.18.82.63-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.51-1.04 2.18-.82 2.18-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+                    <span>GitHub</span>
+                    <span class="github-pill-count" id="github-stars" aria-label="Antall stjerner">—</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <header>
+        <div class="container hero">
+            <img src="logo.png" alt="Natur i Norge Logo" class="logo">
+            <h1>Natur i Norge guide</h1>
+            <p class="subtitle">Hele Norges naturtype-guide i lomma di.</p>
+            <div class="cta-buttons">
+                <a href="https://apps.apple.com/no/app/natur-i-norge-guide/id1495898327?l=nb" class="btn btn-primary"><i class="fab fa-apple"></i> App Store</a>
+                <a href="https://play.google.com/store/apps/details?id=no.naturinorge.naturinorge_guide&hl=no" class="btn btn-primary"><i class="fab fa-google-play"></i> Google Play</a>
+                <a href="app/" class="btn btn-primary"><i class="fas fa-globe"></i> Webversjon (oppdatert)</a>
+                <a href="#about" class="btn btn-outline">Les mer</a>
+            </div>
+            <p class="web-links">
+                <a href="app/">Gå til den levende webappen</a>
+                <span class="web-links-sep">·</span>
+                <a href="v2.3/" class="web-links-legacy">NiN 2.3-arkiv (historisk)</a>
+            </p>
+        </div>
+    </header>
+
+    <section id="about">
+        <div class="container">
+            <h2>Utforsk norsk natur</h2>
+            <div class="glass-card">
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <h3>Kartlegging</h3>
+                        <p>Enkel tilgang til kart og verktøy for å kartlegge naturtyper i felt.</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-database"></i>
+                        <h3>Fungerer offline</h3>
+                        <p>Last ned databasen og bruk appen uten mobildekning i villmarka.</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-leaf"></i>
+                        <h3>Artsdatabanken</h3>
+                        <p>Basert på det offisielle NiN-systemet fra Artsdatabanken.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="citizen-science" class="about-section">
+        <div class="container">
+            <h2>Medborgervitenskap</h2>
+            <p class="section-lead">Registrer naturtypeobservasjoner i felt og bidra til bedre kunnskap om norsk natur.</p>
+            <div class="info-grid">
+                <div class="info-card glass-card">
+                    <i class="fas fa-binoculars"></i>
+                    <h3>Observasjoner i felt</h3>
+                    <p>Registrer naturtyper med posisjon, beskrivelse og bilder – direkte der du er ute i naturen.</p>
+                </div>
+                <div class="info-card glass-card">
+                    <i class="fas fa-mobile-alt"></i>
+                    <h3>Dine data, ditt valg</h3>
+                    <p>Observasjoner lagres lokalt på enheten din. Du velger selv om du vil dele dem videre.</p>
+                </div>
+                <div class="info-card glass-card">
+                    <i class="fas fa-users"></i>
+                    <h3>Bidrag til forskning</h3>
+                    <p>Valgfri deling via sky-sikkerhetskopiering støtter kartlegging, forvaltning og åpen vitenskap – med publisering til Zenodo på vei.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="publishing" class="about-section">
+        <div class="container">
+            <h2>Sikkerhetskopiering og publisering</h2>
+            <p class="section-lead">Sky-sikkerhetskopiering er frivillig og krever innlogging. Når du aktiverer den, gjelder følgende regler.</p>
+            <div class="glass-card publish-card">
+                <ol class="publish-rules">
+                    <li class="publish-rule">
+                        <span class="publish-rule-icon" aria-hidden="true"><i class="fas fa-cloud-upload-alt"></i></span>
+                        <div>
+                            <h3>Valgfri sky-sikkerhetskopiering</h3>
+                            <p>Logg inn med Google for å aktivere automatisk sikkerhetskopiering av observasjonene dine.</p>
+                        </div>
+                    </li>
+                    <li class="publish-rule">
+                        <span class="publish-rule-icon" aria-hidden="true"><i class="fas fa-sync"></i></span>
+                        <div>
+                            <h3>Automatisk synkronisering</h3>
+                            <p>Eksisterende og nye observasjoner sikkerhetskopieres til skyen når backup er aktivert.</p>
+                        </div>
+                    </li>
+                    <li class="publish-rule">
+                        <span class="publish-rule-icon" aria-hidden="true"><i class="fas fa-flask"></i></span>
+                        <div>
+                            <h3>Publisering til Zenodo <span class="status-badge">Kommer snart</span></h3>
+                            <p>Observasjoner vil publiseres periodisk til <a href="https://zenodo.org/" target="_blank" rel="noopener noreferrer">Zenodo</a> for langsiktig bevaring og gjenbruk i forskning. Zenodo-publisering er under utrulling og er ikke aktiv ennå.</p>
+                        </div>
+                    </li>
+                    <li class="publish-rule">
+                        <span class="publish-rule-icon" aria-hidden="true"><i class="fas fa-balance-scale"></i></span>
+                        <div>
+                            <h3>Lisens CC-BY 4.0</h3>
+                            <p>Ved å aktivere backup samtykker du i at publiserte observasjoner deles under <a href="https://creativecommons.org/licenses/by/4.0/deed.no" target="_blank" rel="noopener noreferrer">Creative Commons Attribution 4.0</a>.</p>
+                        </div>
+                    </li>
+                    <li class="publish-rule">
+                        <span class="publish-rule-icon" aria-hidden="true"><i class="fas fa-image"></i></span>
+                        <div>
+                            <h3>Kvalitetskontroll av bilder</h3>
+                            <p>Før publisering vurderes bilder av både mennesker og AI for å sikre at de oppfyller kravene for publisering: naturmotiver, ingen personopplysninger og intet uvedkommende innhold.</p>
+                        </div>
+                    </li>
+                    <li class="publish-rule">
+                        <span class="publish-rule-icon" aria-hidden="true"><i class="fas fa-archive"></i></span>
+                        <div>
+                            <h3>Varige arkivkopier</h3>
+                            <p>Når data er publisert i Zenodo, kan de ikke slettes fullstendig. Dette sikrer vitenskapelig etterprøvbarhet, selv om du senere sletter kontoen din.</p>
+                        </div>
+                    </li>
+                </ol>
+                <p class="publish-footnote">Fullstendige detaljer finnes i <a href="privacy_policy.html">personvernerklæringen</a>.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="support">
+        <div class="container">
+            <div class="support-banner glass-card">
+                <div class="support-banner-text">
+                    <h2>Trenger du hjelp?</h2>
+                    <p>Feilrapporter, spørsmål og forslag håndteres på <a href="https://github.com/geco-nhm/natur-i-norge/issues">GitHub Issues</a>.</p>
+                </div>
+                <a href="https://github.com/geco-nhm/natur-i-norge/issues/new/choose" class="btn btn-primary btn-sm">Opprett sak</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="app/">Webversjon</a>
+                <a href="v2.3/">NiN 2.3-arkiv</a>
+                <a href="privacy_policy.html">Personvern</a>
+                <a href="privacy_policy.html#terms">Vilkår</a>
+                <a href="https://github.com/geco-nhm/natur-i-norge/issues">Support</a>
+            </div>
+            <p class="copyright">© 2026 Naturhistorisk museum, Universitetet i Oslo (UiO)</p>
+            <p class="copyright copyright-sub">Utviklet i samarbeid med Artsdatabanken</p>
+        </div>
+    </footer>
+
+    <script>
+        fetch('https://api.github.com/repos/geco-nhm/natur-i-norge')
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (data) {
+                if (data && data.stargazers_count != null) {
+                    var el = document.getElementById('github-stars');
+                    if (el) el.textContent = data.stargazers_count.toLocaleString('nb-NO');
+                }
+            })
+            .catch(function () {});
+    </script>
+</body>
+</html>
