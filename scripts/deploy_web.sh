@@ -149,7 +149,7 @@ rm -f "$TEMP_INDEX"
 # Determine parent commit on target branch if it exists on origin or locally
 PARENT_COMMIT=""
 if git ls-remote --exit-code --heads origin "${TARGET_BRANCH}" >/dev/null 2>&1; then
-  git fetch origin "${TARGET_BRANCH}:${TARGET_BRANCH}" 2>/dev/null || true
+  git fetch origin "+${TARGET_BRANCH}:${TARGET_BRANCH}" 2>/dev/null || true
   PARENT_COMMIT=$(git rev-parse --verify "refs/heads/${TARGET_BRANCH}" 2>/dev/null || true)
 elif git show-ref --verify --quiet "refs/heads/${TARGET_BRANCH}"; then
   PARENT_COMMIT=$(git rev-parse --verify "refs/heads/${TARGET_BRANCH}" 2>/dev/null || true)
