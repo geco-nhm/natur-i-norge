@@ -8,28 +8,24 @@ App for mapping and identifying nature types in Norway.
 
 ## Landing Page, Web App & Privacy Policy
 
-The project includes a landing page and privacy policy in the `docs/` directory. The Flutter web build is published under `docs/app/`.
+The project includes a landing page and privacy policy in the `docs/` directory. Web builds and landing pages are published to the dedicated **`gh-pages`** branch.
 
-GitHub Pages is configured to serve from **`main` / `docs`**. The landing page is at:
+GitHub Pages is configured to serve from **`gh-pages` / `/ (root)`**:
 
-`https://geco-nhm.github.io/natur-i-norge/`
-
-The **live** web app is at:
-
-`https://geco-nhm.github.io/natur-i-norge/app/`
-
-The frozen **NiN 2.3** archive (when synced) is at:
-
-`https://geco-nhm.github.io/natur-i-norge/v2.3/`
+- Landing page: `https://geco-nhm.github.io/natur-i-norge/`
+- Live Flutter Web app: `https://geco-nhm.github.io/natur-i-norge/app/`
+- Frozen NiN 2.3 archive: `https://geco-nhm.github.io/natur-i-norge/v2.3/`
 
 ### Build and deploy the web app
 
-```bash
-# Build only (output in docs/app/)
-./publish.sh web
+The web build and deployment is automated via the Jenkins pipeline on release branches (`main`), or can be run manually:
 
-# Build, commit, and push to GitHub Pages
-./publish.sh web --deploy
+```bash
+# Build & assemble staging payload (without pushing)
+./scripts/deploy_web.sh
+
+# Build & push directly to gh-pages branch
+./scripts/deploy_web.sh --deploy
 
 # Preview locally before deploying (mirrors GitHub Pages URL paths)
 ./scripts/preview_web.sh
