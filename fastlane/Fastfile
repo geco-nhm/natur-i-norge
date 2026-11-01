@@ -3,6 +3,7 @@
 
 require "shellwords"
 require "securerandom"
+require "tmpdir"
 
 default_platform(:android)
 
@@ -65,6 +66,19 @@ def google_play_key_path
   key_path
 end
 
+# Remove a named keychain via Fastlane, then force-delete leftover files securityd may leave behind.
+def scrub_keychain_residue!(name, keychains_dir = File.expand_path("~/Library/Keychains"))
+  begin
+    delete_keychain(name: name)
+  rescue => e
+    UI.important("Prior ephemeral keychain cleanup notice (#{name}): #{e.message}")
+  end
+  [name, "#{name}-db"].each do |fname|
+    fpath = File.join(keychains_dir, fname)
+    FileUtils.rm_f(fpath) if File.exist?(fpath)
+  end
+end
+
 # -----------------------------------------------------------------------------
 # Android Platform
 # -----------------------------------------------------------------------------
@@ -92,6 +106,8 @@ platform :android do
 
   desc "Build Android release artifacts (both AAB and APK)"
   lane :build do |options|
+    FileUtils.rm_rf(Dir.glob(File.join(ROOT_DIR, "build/app/outputs/bundle/*")))
+    FileUtils.rm_rf(Dir.glob(File.join(ROOT_DIR, "build/app/outputs/flutter-apk/*")))
     build_bundle(options)
     build_apk(options)
   end
@@ -102,13 +118,14 @@ platform :android do
 
     key_path = google_play_key_path
     track = options[:track] || "internal"
-    release_status = options[:release_status] || ENV["PLAY_RELEASE_STATUS"] || "draft"
+    release_status = options[:release_status] || ENV["PLAY_RELEASE_STATUS"] || "completed"
     has_metadata = Dir.exist?(File.join(ROOT_DIR, "fastlane/metadata/android"))
     aab_path = Dir[File.join(ROOT_DIR, "build/app/outputs/bundle/**/*.aab")].first
     UI.user_error!("No AAB artifact found in build/app/outputs/bundle/ to upload to Google Play!") unless aab_path && File.exist?(aab_path)
 
-    UI.message("🚀 Uploading AAB and Git metadata to Google Play track: #{track} (status: #{release_status})...")
-    upload_to_play_store(
+    version_name = ENV["BUILD_NAME"]
+    UI.message("🚀 Uploading AAB and Git metadata to Google Play track: #{track} (status: #{release_status}, version: #{version_name})...")
+    upload_params = {
       track: track,
       json_key: key_path,
       aab: aab_path,
@@ -117,7 +134,9 @@ platform :android do
       skip_upload_images: !has_metadata,
       skip_upload_screenshots: !has_metadata,
       skip_upload_changelogs: false
-    )
+    }
+    upload_params[:version_name] = version_name if version_name && !version_name.empty?
+    upload_to_play_store(upload_params)
   end
 
   desc "Build and deploy Android release to Google Play Production track"
@@ -206,31 +225,50 @@ platform :ios do
     UI.user_error!("Distribution certificate (.p12) missing at #{p12_path}!") unless File.exist?(p12_path)
     UI.user_error!("P12_PASSWORD environment variable missing!") unless p12_password && !p12_password.empty?
 
-    keychain_name = "ci_signing"
+    # Unique per-build name avoids exit 162 collisions with leftover/concurrent ci_signing.
+    build_id = (ENV["BUILD_NUMBER"].to_s.empty? ? SecureRandom.hex(4) : ENV["BUILD_NUMBER"])
+    keychain_name = "ci_signing_#{build_id}_#{SecureRandom.hex(3)}"
     keychain_path = File.expand_path("~/Library/Keychains/#{keychain_name}-db")
     keychain_password = SecureRandom.hex(16)
-    original_keychains = sh("security list-keychains -d user").shellsplit rescue []
+    keychains_dir = File.expand_path("~/Library/Keychains")
 
-    delete_keychain(name: keychain_name) if File.exist?(keychain_path)
+    # Snapshot host user search list for restore after the job (host hygiene only).
+    # Signing uses Vault → ephemeral keychain only — never login.keychain identities.
+    original_keychains = sh("security list-keychains -d user").shellsplit rescue []
+    original_keychains.reject! { |kc| kc.include?("ci_signing") }
+    sh("security list-keychains -d user -s #{original_keychains.shelljoin}") unless original_keychains.empty?
+
+    # Scrub legacy fixed-name ci_signing and any ghost files from prior failed runs.
+    # Do not delete other ci_signing_<build>_* keychains — concurrent jobs may own them.
+    scrub_keychain_residue!("ci_signing", keychains_dir)
+    scrub_keychain_residue!(keychain_name, keychains_dir)
 
     begin
       UI.message("🔐 Creating ephemeral build keychain (#{keychain_name})...")
       create_keychain(
         name: keychain_name,
         password: keychain_password,
-        default_keychain: true,
+        default_keychain: false,
         add_to_search_list: false,
         unlock: true,
         timeout: 3600
       )
 
-      UI.message("🔓 Unlocking build keychain and isolating search list...")
+      UI.message("🔓 Unlocking build keychain...")
       unlock_keychain(
         path: keychain_path,
         password: keychain_password,
-        add_to_search_list: :replace,
-        set_default: true
+        add_to_search_list: false,
+        set_default: false
       )
+
+      # WWDR + Vault p12 land only in ci_signing (no machine login keychain dependency).
+      UI.message("📜 Installing Apple WWDR certificates into build keychain...")
+      %w[AppleWWDRCAG3.cer AppleWWDRCAG6.cer].each do |cert_name|
+        tmp = File.join(Dir.tmpdir, cert_name)
+        sh("curl -fsSL -o #{tmp.shellescape} https://www.apple.com/certificateauthority/#{cert_name}")
+        sh("security import #{tmp.shellescape} -k #{keychain_path.shellescape} -T /usr/bin/codesign -T /usr/bin/security >/dev/null || true")
+      end
 
       UI.message("📥 Importing Distribution .p12 into ephemeral keychain...")
       import_certificate(
@@ -241,6 +279,18 @@ platform :ios do
         keychain_password: keychain_password
       )
 
+      # Allow codesign/security to use the imported private key without UI prompt.
+      UI.message("🔑 Setting key partition list for non-interactive codesign...")
+      sh(
+        "security set-key-partition-list -S apple-tool:,apple:,codesign: -s " \
+        "-k #{keychain_password.shellescape} #{keychain_path.shellescape}"
+      )
+
+      # Isolate search list to ci_signing only for sigh/gym (Manual + Vault-only).
+      UI.message("🔐 Isolating user keychain search list to #{keychain_name} for codesign...")
+      sh("security list-keychains -d user -s #{keychain_path.shellescape}")
+      sh("security default-keychain -s #{keychain_path.shellescape}")
+
       UI.message("📱 Ensuring App Store Provisioning Profile is installed and up-to-date...")
       get_provisioning_profile(
         api_key: api_key,
@@ -250,6 +300,19 @@ platform :ios do
       )
       profile_name = Actions.lane_context[SharedValues::SIGH_NAME] || "#{app_id} AppStore"
       UI.message("  Using Provisioning Profile: #{profile_name}")
+
+      # Apply Manual signing + sigh profile to Runner only. Global xcargs for
+      # PROVISIONING_PROFILE_SPECIFIER break CocoaPods/SPM targets that need Automatic.
+      UI.message("✍️ Updating Runner target code signing to match downloaded profile...")
+      update_code_signing_settings(
+        path: File.join(ROOT_DIR, "ios/Runner.xcodeproj"),
+        use_automatic_signing: false,
+        team_id: team_id,
+        targets: ["Runner"],
+        code_sign_identity: "Apple Distribution",
+        profile_name: profile_name,
+        build_configurations: ["Release"]
+      )
 
       UI.message("🏗 Compiling Flutter iOS bundle...")
       flutter("build ios --release --no-codesign #{args.join(' ')}".strip)
@@ -266,13 +329,14 @@ platform :ios do
         export_options: {
           method: export_method,
           signingStyle: "manual",
+          signingCertificate: "Apple Distribution",
           provisioningProfiles: {
             app_id => profile_name
           }
         }
       }
       xcargs = []
-      xcargs << "PROVISIONING_PROFILE_SPECIFIER=#{profile_name.shellescape}"
+      xcargs << "OTHER_CODE_SIGN_FLAGS=\"--keychain #{keychain_path.shellescape}\""
       xcargs << "FLUTTER_BUILD_NAME=#{ENV['BUILD_NAME']}" if ENV['BUILD_NAME']
       xcargs << "FLUTTER_BUILD_NUMBER=#{ENV['BUILD_NUMBER']}" if ENV['BUILD_NUMBER']
       gym_params[:xcargs] = xcargs.join(" ") unless xcargs.empty?
@@ -280,8 +344,17 @@ platform :ios do
       build_app(gym_params)
     ensure
       UI.message("🧹 Restoring host keychains and deleting ephemeral build keychain...")
-      delete_keychain(name: keychain_name) if File.exist?(keychain_path)
-      sh("security list-keychains -d user -s #{original_keychains.shelljoin}") unless original_keychains.empty?
+      begin
+        delete_keychain(name: keychain_name)
+      rescue => e
+        UI.important("Ephemeral keychain cleanup notice: #{e.message}")
+      end
+      [keychain_name, "#{keychain_name}-db"].each do |fname|
+        fpath = File.join(keychains_dir, fname)
+        FileUtils.rm_f(fpath) if File.exist?(fpath)
+      end
+      # Restore the original search-list snapshot — never hardcode login.keychain.
+      sh("security list-keychains -d user -s #{original_keychains.shelljoin}") rescue nil unless original_keychains.empty?
     end
 
     ipa_path = File.join(ROOT_DIR, "build/ios/ipa/naturinorge_guide.ipa")

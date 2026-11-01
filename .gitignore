@@ -273,9 +273,14 @@ Gemfile.lock
 *.png
 !assets/fonts/*.ttf
 # Legacy web archive (production v2.3 snapshot)
-!archive/v2.3-web/web/**/*.png
+!archive/v2.3-web/**/*.png
+!archive/v2.3-web/*.png
 !docs/logo.png
-!docs/v2.3/**/*.png
+
+# Web build artifacts (deployed via gh-pages branch)
+/docs/app/
+/docs/v2.3/
+build/gh-pages-staging/
 
 # Python venv
 scripts/venv/

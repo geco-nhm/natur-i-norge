@@ -11,6 +11,7 @@ from PIL import Image
 from io import BytesIO
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from requests_cache import CachedSession
+from nin_variable_steps import build_steps_from_variabeltrinn, format_steps_for_description
 
 # --- CONFIGURATION ---
 BASE_URL = 'https://nin-kode-api.artsdatabanken.no/v3.0'
@@ -308,10 +309,7 @@ def process_single_variable(v):
     if v.get('steps_json'):
         try:
             steps = json.loads(v['steps_json'])
-            if steps:
-                parts.append("\nTrinn:")
-                for s in steps:
-                    parts.append(f"- {s['verdi']}: {s['navn']}")
+            parts.extend(format_steps_for_description(steps))
         except: pass
             
     v['description'] = "\n".join(parts)
@@ -333,17 +331,8 @@ def main():
         
         k_id = kode['id']
         
-        # Collect steps from variabeltrinn -> trinn
-        steps = []
-        if item.get('variabeltrinn'):
-            for vt in item['variabeltrinn']:
-                if vt.get('trinn'):
-                    for tr in vt['trinn']:
-                        steps.append({
-                            'verdi': tr.get('verdi'),
-                            'navn': tr.get('beskrivelse'),
-                            'kode': tr.get('kode')
-                        })
+        # Keep måleskala identity — do not flatten all variabeltrinn into one list
+        scales = build_steps_from_variabeltrinn(item.get('variabeltrinn'))
         
         all_vars.append({
             'id': k_id,
@@ -353,7 +342,7 @@ def main():
             'ecosystnivaa_navn': fix_broken_encoding(item.get('ecosystnivaaNavn')),
             'variabelkategori_navn': fix_broken_encoding(item.get('variabelkategoriNavn')),
             'langkode': kode.get('langkode'),
-            'steps_json': json.dumps(steps) if steps else None
+            'steps_json': json.dumps(scales, ensure_ascii=False) if scales else None
         })
         
         # Recursive keys in NiN 3.0 structure
