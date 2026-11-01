@@ -2,5 +2,53 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended"
+  ],
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/vendor/**",
+    "scratch/**",
+    "archive/**"
+  ],
+  "prConcurrentLimit": 3,
+  "prHourlyLimit": 1,
+  "packageRules": [
+    {
+      "description": "Ignore Flutter internal Gradle plugin loader",
+      "matchPackageNames": [
+        "dev.flutter.flutter-plugin-loader"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Block major Gradle / AGP / Kotlin updates tied to Flutter SDK",
+      "matchPackageNames": [
+        "gradle",
+        "com.android.application",
+        "org.jetbrains.kotlin.android"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Group Flutter Firebase packages together",
+      "matchPackagePatterns": [
+        "^firebase_",
+        "^cloud_firestore"
+      ],
+      "groupName": "Firebase dependencies"
+    },
+    {
+      "description": "Group minor and patch pub dependencies to minimize CI runs",
+      "matchManagers": [
+        "pub"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "groupName": "Flutter pub (minor/patch)"
+    }
   ]
 }
