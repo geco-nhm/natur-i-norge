@@ -9,18 +9,26 @@
     "scratch/**",
     "archive/**"
   ],
+  "rangeStrategy": "bump",
   "prConcurrentLimit": 3,
   "prHourlyLimit": 1,
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": [
+      "before 6am on monday"
+    ]
+  },
   "packageRules": [
     {
-      "description": "Ignore Flutter internal Gradle plugin loader",
+      "description": "Ignore Flutter-owned Gradle plugins (resolved via Flutter SDK includeBuild)",
       "matchPackageNames": [
-        "dev.flutter.flutter-plugin-loader"
+        "dev.flutter.flutter-plugin-loader",
+        "dev.flutter.flutter-gradle-plugin"
       ],
       "enabled": false
     },
     {
-      "description": "Block major Gradle / AGP / Kotlin updates tied to Flutter SDK",
+      "description": "Block major Gradle / AGP / Kotlin updates tightly coupled to Flutter toolchain",
       "matchPackageNames": [
         "gradle",
         "com.android.application",
@@ -32,15 +40,40 @@
       "enabled": false
     },
     {
-      "description": "Group Flutter Firebase packages together",
-      "matchPackagePatterns": [
-        "^firebase_",
-        "^cloud_firestore"
+      "description": "Block major Google Services Gradle plugin updates (review manually)",
+      "matchPackageNames": [
+        "com.google.gms.google-services"
       ],
-      "groupName": "Firebase dependencies"
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "enabled": false
     },
     {
-      "description": "Group minor and patch pub dependencies to minimize CI runs",
+      "description": "Group non-major Google Services plugin updates",
+      "matchPackageNames": [
+        "com.google.gms.google-services"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "groupName": "Android Google services"
+    },
+    {
+      "description": "Isolate Dart/Flutter SDK constraint updates for manual review",
+      "matchManagers": [
+        "pub"
+      ],
+      "matchPackageNames": [
+        "dart",
+        "flutter"
+      ],
+      "groupName": "Dart/Flutter SDK",
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Residual: group remaining pub minor/patch updates to limit CI noise (specific groups below override)",
       "matchManagers": [
         "pub"
       ],
@@ -49,6 +82,60 @@
         "patch"
       ],
       "groupName": "Flutter pub (minor/patch)"
+    },
+    {
+      "description": "Group Firebase + google_sign_in auth stack (including majors)",
+      "matchManagers": [
+        "pub"
+      ],
+      "matchPackageNames": [
+        "firebase_core",
+        "firebase_auth",
+        "firebase_storage",
+        "cloud_firestore",
+        "google_sign_in",
+        "/^firebase_/"
+      ],
+      "groupName": "Firebase dependencies"
+    },
+    {
+      "description": "Group Riverpod packages (including majors)",
+      "matchManagers": [
+        "pub"
+      ],
+      "matchPackageNames": [
+        "flutter_riverpod",
+        "riverpod"
+      ],
+      "groupName": "Riverpod"
+    },
+    {
+      "description": "Group Drift + codegen stack (including majors). After merging Drift bumps, run: dart run build_runner build --delete-conflicting-outputs",
+      "matchManagers": [
+        "pub"
+      ],
+      "matchPackageNames": [
+        "drift",
+        "drift_dev",
+        "sqlite3",
+        "sqlite3_flutter_libs",
+        "build_runner",
+        "json_annotation",
+        "json_serializable"
+      ],
+      "groupName": "Drift / codegen"
+    },
+    {
+      "description": "Group flutter_map stack (including majors)",
+      "matchManagers": [
+        "pub"
+      ],
+      "matchPackageNames": [
+        "flutter_map",
+        "flutter_map_cancellable_tile_provider",
+        "latlong2"
+      ],
+      "groupName": "flutter_map"
     }
   ]
 }
